@@ -37,7 +37,6 @@
                         <td class="text-center">{{$resv->bus_type}}</td>
                         <td class="text-center">{{$resv->booked_seats}}</td>
                         <td class="tbl-btn animated slideInLeft">
-                          <i class="fas fa-check-square text-success sp-i">
                           <i class="fas fa-edit text-primary sp-i mr-2"></i>
                           <i class="fas fa-trash text-danger sp-i mr-2"></i>
                         </td>

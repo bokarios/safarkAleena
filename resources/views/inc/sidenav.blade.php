@@ -55,22 +55,17 @@
           الاضافة
         </li>
         <li class="nav-item">
-          <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-company">
-            <i class="fa fa-plus-circle text-muted"></i> إضافة شركة نقل
-          </a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-bus">
             <i class="fa fa-plus-circle text-muted"></i> إضافة باص جديد
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-journy">
+          <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-trip">
             <i class="fa fa-plus-circle text-muted"></i> إضافة رحلة جديدة
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-subjects">
+          <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-admin">
             <i class="fa fa-plus-circle text-muted"></i> إضافة مدير جديد
           </a>
         </li>
@@ -84,18 +79,13 @@
           </a>
         </li>
         <li class="nav-item">
-            <a class="nav-item nav-link btn btn-outline-secondary btn-block" id="nav-sure-tab" data-toggle="tab" href="#nav-sure" role="tab" aria-controls="nav-sure" aria-selected="true">
-              <i class="fa fa-check text-muted"></i> الحجوزات المؤكدة
-            </a>
-          </li>
-        <li class="nav-item">
           <a class="nav-item nav-link btn btn-outline-secondary btn-block" id="nav-delayed-tab" data-toggle="tab" href="#nav-delayed" role="tab" aria-controls="nav-delayed" aria-selected="true">
             <i class="fa fa-clock text-muted"></i> الحجوزات المؤخرة
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-item nav-link btn btn-outline-secondary btn-block" id="nav-company-tab" data-toggle="tab" href="#nav-company" role="tab" aria-controls="nav-company" aria-selected="true">
-            <i class="fa fa-table text-muted"></i> قائمة شركات النقل
+          <a class="nav-item nav-link btn btn-outline-secondary btn-block" id="nav-trip-tab" data-toggle="tab" href="#nav-trip" role="tab" aria-controls="nav-trip" aria-selected="true">
+            <i class="fa fa-table text-muted"></i> قائمة الرحلات
           </a>
         </li>
         <li class="nav-item">
