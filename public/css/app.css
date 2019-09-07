@@ -1,0 +1,66 @@
+body {
+	font-family: serif;
+	background-color: #efefef;
+}
+.table thead th {
+	font-size: 16px;
+}
+.table tbody td {
+	font-size: 15px;
+}
+.shadow-sp-sm {
+	box-shadow: 1px 1px 4px -1px #222325 !important;
+}
+.shadow-sp-md {
+	box-shadow: 2px 3px 10px -4px #222325 !important;
+}
+.card {
+	box-shadow: 1px 2px 8px -3px rgb(136, 152, 170);
+}
+.text-gradient-primary-dark {
+	color: #1fabc4 !important;
+}
+.text-gradient-primary-light {
+	color: #12cbed !important;
+}
+.btn-gradient-primary {
+	background: linear-gradient(87deg, #11cdef 0, #1faac3 100%);
+	color: #efeded;
+	border-color: #11cdef;
+	padding: 11px 45px;
+	border-radius: 25px;
+	font-size: 16px;
+	box-shadow: 0 4px 6px rgba(25, 152, 175, 0.19), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.btn-gradient-primary:hover {
+	background: linear-gradient(87deg, #11cdef 0, #1faac3 100%);
+	color: #efeded;
+	border-color: #11cdef;
+}
+.simple-transition {
+	transition: all 3s ease-in-out;
+}
+.alert-top {
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	width: 100% !important;
+	border-radius: 0 !important;
+	z-index: 90000;
+	box-shadow: 0px 7px 10px 0px #828181;
+	padding: 10px;
+}
+.direction-rtl {
+	direction: rtl;
+}
+.tbl-btn {
+	display: none;
+	transition: all 3s ease-in;
+}
+
+.tbl-btn-p.active .tbl-btn {
+	display: block;
+}
+.sp-i {
+	cursor: pointer;
+}
