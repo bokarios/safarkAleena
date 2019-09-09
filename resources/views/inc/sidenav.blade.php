@@ -80,17 +80,12 @@
         </li>
         <li class="nav-item">
           <a class="nav-item nav-link btn btn-outline-secondary btn-block" id="nav-delayed-tab" data-toggle="tab" href="#nav-delayed" role="tab" aria-controls="nav-delayed" aria-selected="true">
-            <i class="fa fa-clock text-muted"></i> الحجوزات المؤخرة
+            <i class="fa fa-clock text-muted"></i> الحجوزات المؤجلة
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-item nav-link btn btn-outline-secondary btn-block" id="nav-trip-tab" data-toggle="tab" href="#nav-trip" role="tab" aria-controls="nav-trip" aria-selected="true">
             <i class="fa fa-table text-muted"></i> قائمة الرحلات
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-item nav-link btn btn-outline-secondary btn-block" id="nav-stat-tab" data-toggle="tab" href="#nav-stat" role="tab" aria-controls="nav-stat" aria-selected="true">
-            <i class="fa fa-list-alt text-muted"></i> قائمة الاحصائيات
           </a>
         </li>
       </ul>

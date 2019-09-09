@@ -3,12 +3,12 @@
 	<div class="container pt-5">
 		<div class="row pt-5">
 			<div class="col-xl-7 col-lg-9 col-md-11 col-sm-12 mx-auto">
-				<div class="row">
-					<div class="col-md-7 col-sm-7 text-center bg-white shadow-sp-sm pt-5" style="border-radius: 4px 0 0 4px;">
+				<div class="row" style="background: linear-gradient(109deg, #ffffff 55%, #1fabc4 30%);box-shadow:0px 10px 18px -6px #00000066;border-radius:5px">
+					<div class="col-md-7 col-sm-7 text-center bg-white pt-5" style="border-radius: 4px 0 0 4px;background:linear-gradient(143deg, #11cbed 44%, #d6d4d4 35%)">
 						<div class="row text-center">
 							<div class="col-12">
-								<h1 class="text-gradient-primary-dark">
-									<i class="fa fa-car"></i> سفرك علينا
+								<h1 class="text-white">
+									<i class="fa fa-bus"></i> سفرك علينا
 								<h1>
 								<form class="mt-5" method="POST" action="/auth/login">
 									<input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
@@ -22,7 +22,7 @@
 											</div>
 											<input type="email" class="form-control bg-secondary text-right {{$errors->has('email')?'border-danger':''}}" id="username" name="email" placeholder="البريد الاكتروني" value="{{ old('email') }}">
 										</div>
-										<h5 class="form-text text-muted text-right mr-3 simple-transition animated" id="username-error">
+										<h5 class="form-text text-muted text-right mr-3 simple-transition animated slideInLeft" id="username-error">
 											@if($errors->has('email'))
 												{!! $errors->first('email', '<span class="text-danger">:message</span>') !!}
 											@else
@@ -42,7 +42,7 @@
 											</div>
 											<input type="password" class="form-control text-right {{$errors->has('password')?'border-danger':''}}" id="password" name="password" placeholder="كلمة المرور">
 										</div>
-										<h5 class="form-text text-right text-muted mr-3 simple-transition animated" id="password-error">
+										<h5 class="form-text text-right text-muted mr-3 simple-transition animated slideInLeft" id="password-error">
 												@if($errors->has('password'))
 												{!! $errors->first('password', '<span class="text-danger">:message</span>') !!}
 											@else
@@ -60,7 +60,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-sm-5 col-md-5 d-none d-sm-block text-center text-light bg-gradient-primary shadow-sp-sm pt-5" style="border-radius: 0 4px 4px 0;">
+					<div class="col-sm-5 col-md-5 d-none d-sm-block text-center text-light pt-5" style="border-radius: 0 4px 4px 0;background:linear-gradient(143deg, #1fabc4 48%, #11cbed 20%)">
 						<div class="row">
 							<div class="col-12">
 								<h1 class="text-center text-white">

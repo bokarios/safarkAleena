@@ -18,6 +18,7 @@ class CreateReservationsTable extends Migration {
 			$table->integer('client_id');
 			$table->integer('trip_id');
 			$table->integer('booked_seats_num');
+			$table->integer('payed');
 			$table->timestamps();
 		});
 	}

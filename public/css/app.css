@@ -1,6 +1,7 @@
 body {
 	font-family: serif;
 	background-color: #efefef;
+	background: linear-gradient(49deg, #cecccc 52%, #e0e0e0 20%);
 }
 .table thead th {
 	font-size: 16px;
@@ -63,4 +64,7 @@ body {
 }
 .sp-i {
 	cursor: pointer;
+}
+input.form-control {
+	font-size: 18px;
 }

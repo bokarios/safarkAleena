@@ -2,6 +2,7 @@
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Bus;
 
 use Illuminate\Http\Request;
 
@@ -32,9 +33,56 @@ class BusesController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function store(Request $request)
 	{
-		//
+		$output = '';
+
+		if($request->input('name') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل اسم الباص اولا
+				</p>
+			';
+		}
+		if($request->input('type') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل نوع الباص اولا
+				</p>
+			';
+		}
+		if($request->input('seats') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل عدد المقاعد اولا
+				</p>
+			';
+		}
+
+		if($request->input('name') != '' && $request->input('type') != '' && $request->input('seats') != '') {
+			$bus = new Bus();
+			$bus->name = $request->input('name');
+			$bus->type = $request->input('type');
+			$bus->seats_num = $request->input('seats');
+			$result = $bus->save();
+
+			if($result) {
+				$output .= '
+				<p class="alert alert-success text-center">
+					تمت اضافة الباص بنجاح
+				</p>
+			';
+			}
+			else {
+				$output .= '
+				<p class="alert alert-warning text-center">
+					حصل خطأ اثناء العملية
+				</p>
+			';
+			}
+		}
+
+		echo $output;
 	}
 
 	/**
@@ -65,7 +113,7 @@ class BusesController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($id)
+	public function update(Requests $request, $id)
 	{
 		//
 	}

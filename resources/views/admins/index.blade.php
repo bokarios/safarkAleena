@@ -17,7 +17,6 @@
             <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <div class="media align-items-center">
                 <span class="avatar avatar-md rounded-circle bg-white">
-                  {{-- <img alt="Image placeholder" src="{{asset('admins/img/theme/avatar.png')}}"> --}}
                   <i class="fas fa-bus fa-2x text-gradient-primary-dark"></i>
                 </span>
               </div>
@@ -41,7 +40,7 @@
       </div>
     </nav>
     <!-- Header -->
-  <div class="header bg-gradient-primary pt-5 pt-md-8" style="padding-bottom:250px">
+  <div class="header bg-gradient-primar pt-5 pt-md-8" style="padding-bottom:250px;background:linear-gradient(40deg, #11cdef 75%, #1faac3 60%)">
     {{-- @include('inc.stats')   --}}
   </div>
     <!-- Page content -->

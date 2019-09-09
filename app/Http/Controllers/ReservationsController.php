@@ -3,6 +3,9 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Reservation;
+use App\Trip;
+use App\Client;
+use DB;
 
 use Illuminate\Http\Request;
 
@@ -57,7 +60,13 @@ class ReservationsController extends Controller {
 	 */
 	public function edit($id)
 	{
-		//
+		$resv = Reservation::where('id', '=', $id)->get()->first();
+		$data['client'] = Client::where('id', '=', $resv->client_id)->get()->first();
+		$data['trip'] = Trip::where('id', '=', $resv->trip_id)->get()->first();
+		$data['trips'] = Trip::all();
+		$data['resv'] = $resv;
+
+		return view('reservations.edit')->with($data);
 	}
 
 	/**
@@ -66,9 +75,54 @@ class ReservationsController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($id)
+	public function update(Request $request, $id)
 	{
-		//
+		$resv = Reservation::where('id', '=', $id)->get()->first();
+		$old_trip = $resv->trip_id;
+		$old_seats = $resv->booked_seats_num;
+		$old_payed = $resv->payed;
+		$change = false;
+
+		if($request->input('trip') != $old_trip) {
+			//update trip
+			$result = DB::table('reservations')->where('id', '=', $id)->update(['trip_id' => $request->input('trip')]);
+			if($result) {
+				$change = true;
+			}
+			else {
+				return back()->with('warning', 'حصل خطأ اثناء العملية');
+			}
+		}
+
+		if($request->input('seats') != $old_seats) {
+			//update booked seats
+			$result = DB::table('reservations')->where('id', '=', $id)->update(['booked_seats_num' => $request->input('seats')]);
+			if($result) {
+				$change = true;
+			}
+			else {
+				return back()->with('warning', 'حصل خطأ اثناء العملية');
+			}
+		}
+
+		if($request->input('payed') != $old_payed) {
+			//update payed
+			$result = DB::table('reservations')->where('id', '=', $id)->update(['payed' => $request->input('payed')]);
+			if($result) {
+				$change = true;
+			}
+			else {
+				return back()->with('warning', 'حصل خطأ اثناء العملية');
+			}
+		}
+
+		if($change) {
+			return redirect('/panel')->with('success', 'تم تعديل معلومات الحجز')->withInput(['tab'=>'nav-reservation']);
+		}
+		else {
+			return redirect('/panel')->with('info', 'لم تقم بتعديل معلومات الحجز')->withInput(['tab'=>'nav-reservation']);
+		}
+		
 	}
 
 	/**
@@ -79,7 +133,14 @@ class ReservationsController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		//
+		$result = Reservation::where('id', '=', $id)->delete();
+
+		if($result) {
+			return redirect('/panel')->with('success', 'تم حذف معلومات الحجز')->withInput(['tab'=>'nav-reservation']);
+		}
+		else {
+			return redirect('/panel')->with('warning', 'حصل خطأ اثناء العملية حاول مرة اخرى')->withInput(['tab'=>'nav-reservation']);
+		}
 	}
 
 }

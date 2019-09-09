@@ -16,6 +16,9 @@ class CreateDelayedReservationsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('client_id');
+			$table->integer('trip_id');
+			$table->string('source');
+			$table->string('destination');
 			$table->integer('booked_seats_num');
 			$table->date('date');
 			$table->timestamps();

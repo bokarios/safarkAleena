@@ -2,7 +2,7 @@
   <div class="tab-pane animated fadeInDown show active" id="nav-reservation" role="tabpanel" aria-labelledby="nav-reservation-tab">
     <!-- reservations list -->
     <div class="row mt-5" id="results-list">
-      <div class="col-xl-10 mx-auto mb-5 mb-xl-0">
+      <div class="col-xl-12 mx-auto mb-5 mb-xl-0">
         <div class="card shadow-custome">
           <div class="card-header border-0">
             <div class="row align-items-center">
@@ -14,16 +14,38 @@
           </div>
           <div class="card-body">
             @if($reservations)
-              <div class="table-responsive">
-                <table class="table table-striped table-bordered hover direction-rtl">
-                  <thead>
+              <div class="row">
+                <div class="col-12">
+                  <div class="col-xl-5 col-lg-6 col-md-10 col-sm-7 ml-auto pr-0">
+                    <div class="form-group mx-md-5 mx-sm-3">
+                      <label class="sr-only" for="reservation-search">search</label>
+                      <div class="input-group mb-2 mr-sm-2">
+                        <div class="input-group-prepend">
+                          <div class="input-group-text" style="height: 46px;width:50px">
+                            <i class="fas fa-search text-gradient-primary-dark"></i>
+                          </div>
+                        </div>
+                        <input type="email" class="form-control text-right" id="reservation-search" placeholder="البحث في الحجوزات">
+                      </div>
+                      <h4 class="form-text text-muted text-right mr-3">
+                        يمكنك البحث بالاسم او البداية او الوجهة  
+                      </h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive" id="resv-table">
+                <table class="table table-striped table-bordered table-hover direction-rtl">
+                  <thead class="thead-light">
                     <tr>
                       <th class="text-center">#</th>
                       <th class="text-center">الإسم</th>
                       <th class="text-center">البداية</th>
                       <th class="text-center">الوجهة</th>
                       <th class="text-center">نوع الباص</th>
-                      <th class="text-center tbl-btn-p">عدد المقاعد</th>
+                      <th class="text-center">عدد المقاعد</th>
+                      <th class="text-center">الدفع</th>
+                      <th class="text-center">التاريخ</th>
                     </tr>
                   </thead>
                   <tbody class="tbl-btn-p" id="tbl-row" ondblclick="document.getElementById('tbl-row').classList.add('active');" onclick="document.getElementById('tbl-row').classList.remove('active')">
@@ -36,9 +58,21 @@
                         <td class="text-center">{{$resv->trip_destination}}</td>
                         <td class="text-center">{{$resv->bus_type}}</td>
                         <td class="text-center">{{$resv->booked_seats}}</td>
-                        <td class="tbl-btn animated slideInLeft">
-                          <i class="fas fa-edit text-primary sp-i mr-2"></i>
-                          <i class="fas fa-trash text-danger sp-i mr-2"></i>
+                        <td class="text-center">
+                          @if($resv->payed == 1)
+                            <i class="fas fa-check-circle text-success"></i>
+                          @else
+                            <i class="fas fa-times-circle text-danger"></i>
+                          @endif
+                        </td>
+                        <td class="text-center">{{ date('M d (h:ia)',strtotime($resv->created_at)) }}</td>
+                        <td class="text-center tbl-btn animated slideInLeft px-1">
+                          <a href="reservations/{{$resv->id}}/edit">
+                            <i class="fas fa-edit text-primary mr-2"></i>
+                          </a>  
+                          <a href="reservations/{{$resv->id}}/delete">
+                            <i class="fas fa-trash text-danger mr-2"></i>
+                          </a> 
                         </td>
                       </tr>
                       <?php $i++ ?>
@@ -59,90 +93,89 @@
       </div>
     </div>
   </div>
-  <div class="tab-pane animated fadeInDown" id="nav-sure" role="tabpanel" aria-labelledby="nav-sure-tab">
-    <!-- confirmed reservations list -->
+  <div class="tab-pane animated fadeInDown" id="nav-trip" role="tabpanel" aria-labelledby="nav-trip-tab">
+    <!-- trips list -->
     <div class="row mt-5">
-      <div class="col-xl-10 mx-auto mb-5 mb-xl-0">
+      <div class="col-xl-12 mx-auto mb-5 mb-xl-0">
         <div class="card shadow-custome">
           <div class="card-header border-0">
             <div class="row align-items-center">
               <div class="col text-center">
-                <h1 class="mb-0">الحجوزات المؤكدة</h1>
+                <h1 class="mb-0">الرحلات</h1>
               </div>
             </div>
+            <hr class="bg-gradient-primary w-50 my-3" style="height:2px">
           </div>
           <div class="card-body">
-            @if(true)
-              <div class="table-responsive">
-                <table class="table table-striped table-hover direction-rtl">
+              @if($trips)
+              <div class="row">
+                <div class="col-12">
+                  <div class="col-xl-5 col-lg-6 col-md-10 col-sm-7 ml-auto pr-0">
+                    <div class="form-group mx-md-5 mx-sm-3">
+                      <label class="sr-only" for="trip-search">search</label>
+                      <div class="input-group mb-2 mr-sm-2">
+                        <div class="input-group-prepend">
+                          <div class="input-group-text" style="height: 46px;width:50px">
+                            <i class="fas fa-search text-gradient-primary-dark"></i>
+                          </div>
+                        </div>
+                        <input type="email" class="form-control text-right" id="trip-search" placeholder="البحث في الرحلات">
+                      </div>
+                      <h4 class="form-text text-muted text-right mr-3">
+                        يمكنك البحث بالبداية او الوجهة او سعر التذكرة
+                      </h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive" id="trip-table">
+                <table class="table table-striped table-bordered hover direction-rtl">
                   <thead>
-                    <th class="text-center">#</th>
-                    <th class="text-center">الإسم</th>
-                    <th class="text-center">الموقع</th>
-                    <th class="text-center">الوجهة</th>
-                    <th class="text-center">نوع الباص</th>
-                    <th class="text-center">عدد المقاعد</th>
+                    <tr>
+                      <th class="text-center">#</th>
+                      <th class="text-center">البداية</th>
+                      <th class="text-center">الوجهة</th>
+                      <th class="text-center">الحضور</th>
+                      <th class="text-center">الانطلاق</th>
+                      <th class="text-center">نوع الباص</th>
+                      <th class="text-center">عدد المقاعد</th>
+                      <th class="text-center tbl-btn-p">التذكرة</th>
+                    </tr>
                   </thead>
-                  <tbody>
-                    @for($i=1;$i<=8;$i++)
+                  <tbody class="tbl-btn-p" id="tbl-row-t" ondblclick="document.getElementById('tbl-row-t').classList.add('active');" onclick="document.getElementById('tbl-row-t').classList.remove('active')">
+                    <?php $i = 1 ?>
+                    @foreach($trips as $trip)
                       <tr>
-                      <td class="text-center">{{$i}}</td>
-                        <td class="text-center">data</td>
-                        <td class="text-center">data</td>
-                        <td class="text-center">data</td>
-                        <td class="text-center">data</td>
-                        <td class="text-center">data</td>
+                        <td class="text-center">{{$i}}</td>
+                        <td class="text-center">{{$trip->source}}</td>
+                        <td class="text-center">{{$trip->destination}}</td>
+                        <td class="text-center">{{ date('h:ia', strtotime($trip->attend)) }}</td>
+                        <td class="text-center">{{ date('h:ia', strtotime($trip->start)) }}</td>
+                        <td class="text-center">{{$trip->bus_type}}</td>
+                        <td class="text-center">{{$trip->seats}}</td>
+                        <td class="text-center">{{$trip->price}}</td>
+                        <td class="tbl-btn animated slideInLeft">
+                          <a href="tripes/{{$trip->id}}/edit">
+                            <i class="fas fa-edit text-primary sp-i mr-2"></i>
+                          </a>
+                          <a href="tripes/{{$trip->id}}/delete">
+                            <i class="fas fa-trash text-danger sp-i mr-2"></i>
+                          </a>
+                        </td>
                       </tr>
-                    @endfor
+                      <?php $i++ ?>
+                    @endforeach
                   </tbody>
                 </table>
               </div>
             @else
-              <i class="fas fa-warning text-center fa-2x"></i>
-              <h5 class="text-cenetr text-muted">لا يوجد بيانات حاليا</h5>
-            @endif
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="tab-pane animated fadeInDown" id="nav-company" role="tabpanel" aria-labelledby="nav-company-tab">
-    <!-- company list -->
-    <div class="row mt-5">
-      <div class="col-xl-10 mx-auto mb-5 mb-xl-0">
-        <div class="card shadow-custome">
-          <div class="card-header border-0">
-            <div class="row align-items-center">
-              <div class="col text-center">
-                <h2 class="mb-0 text-muted">الشركات</h2>
+            <div class="row">
+              <div class="col-12 text-center">
+                <i class="fa fa-times-circle text-danger fa-2x text-center"></i>
+                <h2 class="text-center text-danger">لا يوجد بيانات حاليا</h2>
               </div>
             </div>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-striped table-hover" style="direction:rtl">
-                <thead>
-                  <th class="text-center">#</th>
-                  <th class="text-center">الإسم</th>
-                  <th class="text-center">الموقع</th>
-                  <th class="text-center">المدير</th>
-                  <th class="text-center">الطلبات</th>
-                  <th class="text-center">الحجوزات المؤكدة</th>
-                </thead>
-                <tbody>
-                  @for($i=1;$i<=8;$i++)
-                    <tr>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
-                    </tr>
-                  @endfor
-                </tbody>
-              </table>
-            </div>
+            @endif
           </div>
         </div>
       </div>
@@ -151,92 +184,84 @@
   <div class="tab-pane animated fadeInDown" id="nav-delayed" role="tabpanel" aria-labelledby="nav-delayed-tab">
     <!-- delayed list -->
     <div class="row mt-5" id="subjects-list">
-      <div class="col-xl-10 mx-auto mb-5 mb-xl-0">
+      <div class="col-xl-12 mx-auto mb-5 mb-xl-0">
         <div class="card shadow-custome">
           <div class="card-header border-0">
             <div class="row align-items-center">
               <div class="col text-center">
-                <h3 class="mb-0 text-muted">الحجوزات المؤخرة</h3>
+                <h1 class="mb-0">الحجوزات المؤجلة</h1>
               </div>
             </div>
+            <hr class="bg-gradient-primary w-50 my-3" style="height:2px">
           </div>
           <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-striped table-hover">
-                <thead>
-                  <th class="text-center">#</th>
-                  <th class="text-center">الإسم</th>
-                  <th class="text-center">الموقع</th>
-                  <th class="text-center">المدير</th>
-                  <th class="text-center">الطلبات</th>
-                  <th class="text-center">الحجوزات المؤكدة</th>
-                </thead>
-                <tbody>
-                  @for($i=1;$i<=8;$i++)
+              @if($delayed)
+              <div class="row">
+                <div class="col-12">
+                  <div class="col-xl-5 col-lg-6 col-md-10 col-sm-7 ml-auto pr-0">
+                    <div class="form-group mx-md-5 mx-sm-3">
+                      <label class="sr-only" for="delayed-search">search</label>
+                      <div class="input-group mb-2 mr-sm-2">
+                        <div class="input-group-prepend">
+                          <div class="input-group-text" style="height: 46px;width:50px">
+                            <i class="fas fa-search text-gradient-primary-dark"></i>
+                          </div>
+                        </div>
+                        <input type="email" class="form-control text-right" id="delayed-search" placeholder="البحث في الحجوزات المؤجلة">
+                      </div>
+                      <h4 class="form-text text-muted text-right mr-3">
+                        يمكنك البحث بالاسم او البداية او الوجهة
+                      </h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive" id="delayed-table">
+                <table class="table table-striped table-bordered hover direction-rtl">
+                  <thead>
                     <tr>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
-                      <td class="text-center">data</td>
+                      <th class="text-center">#</th>
+                      <th class="text-center">الإسم</th>
+                      <th class="text-center">البداية</th>
+                      <th class="text-center">الوجهة</th>
+                      <th class="text-center">نوع الباص</th>
+                      <th class="text-center">التاريخ</th>
+                      <th class="text-center tbl-btn-p">عدد المقاعد</th>
                     </tr>
-                  @endfor
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="tab-pane animated fadeInDown" id="nav-stat" role="tabpanel" aria-labelledby="nav-stat-tab">
-    <!-- statistics -->
-    <div class="row mt-5">
-      <div class="col-xl-10 mx-auto mb-5 mb-xl-0">
-        <div class="card shadow-custome">
-          <div class="card-header border-0">
-            <div class="row align-items-center">
-              <div class="col text-center">
-                <h2 class="mb-0 text-muted">الإحصائيات</h2>
+                  </thead>
+                  <tbody class="tbl-btn-p" id="tbl-row-d" ondblclick="document.getElementById('tbl-row-d').classList.add('active');" onclick="document.getElementById('tbl-row-d').classList.remove('active')">
+                    <?php $i = 1 ?>
+                    @foreach($delayed as $d)
+                      <tr>
+                        <td class="text-center">{{$i}}</td>
+                        <td class="text-center">{{$d->client_name}}</td>
+                        <td class="text-center">{{$d->trip_source}}</td>
+                        <td class="text-center">{{$d->trip_destination}}</td>
+                        <td class="text-center">{{$d->bus_type}}</td>
+                        <td class="text-center">{{ date('M d', strtotime($d->date)) }}</td>
+                        <td class="text-center">{{$d->booked_seats}}</td>
+                        <td class="tbl-btn animated slideInLeft">
+                          <a href="delayed/{{$d->id}}/edit">
+                            <i class="fas fa-edit text-primary sp-i mr-2"></i>
+                          </a>
+                          <a href="delayed/{{$d->id}}/delete">
+                            <i class="fas fa-trash text-danger sp-i mr-2"></i>
+                          </a>
+                        </td>
+                      </tr>
+                      <?php $i++ ?>
+                    @endforeach
+                  </tbody>
+                </table>
+              </div>
+            @else
+            <div class="row">
+              <div class="col-12 text-center">
+                <i class="fa fa-times-circle text-danger fa-2x text-center"></i>
+                <h2 class="text-center text-danger">لا يوجد بيانات حاليا</h2>
               </div>
             </div>
-          </div>
-          <div class="card-body">
-            <ul class="list-group">
-              <li class="list-group-item" style="direction:rtl">
-                <h4 class="text-right mr-3">عدد الشركات</h4>
-                <div class="progress" style="height: 25px">
-                  <div class="progress-bar text-light progress-bar-striped text-center" role="progressbar" style="width: 25%" aria-valuenow="200" aria-valuemin="0" aria-valuemax="1000">
-                    200
-                  </div>
-                </div>
-              </li>
-              <li class="list-group-item" style="direction:rtl">
-                <h4 class="text-right mr-3">عدد الرحلات</h4>
-                <div class="progress" style="height: 25px">
-                  <div class="progress-bar text-light progress-bar-striped text-center" role="progressbar" style="width: 45%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
-                    3000
-                  </div>
-                </div>
-              </li>
-              <li class="list-group-item" style="direction:rtl">
-                <h4 class="text-right mr-3">عدد طلبات الحجز</h4>
-                <div class="progress" style="height: 25px">
-                  <div class="progress-bar text-light progress-bar-striped text-center" role="progressbar" style="width: 45%" aria-valuenow="12000" aria-valuemin="0" aria-valuemax="40000">
-                    12000
-                  </div>
-                </div>
-              </li>
-              <li class="list-group-item" style="direction:rtl">
-                <h4 class="text-right mr-3">عدد الحجوزات المؤكدة</h4>
-                <div class="progress" style="height: 25px">
-                  <div class="progress-bar text-light progress-bar-striped text-center" role="progressbar" style="width: 55%" aria-valuenow="38000" aria-valuemin="0" aria-valuemax="40000">
-                    38000
-                  </div>
-                </div>
-              </li>
-            </ul>
+            @endif
           </div>
         </div>
       </div>

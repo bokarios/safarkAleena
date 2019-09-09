@@ -29,17 +29,13 @@
   @include('inc.messages')
   @yield('content')
 
-  <!-- Argon Scripts -->
-  <!-- Core -->
-  <script src="{{asset('admins/vendor/jquery/dist/jquery.min.js')}}"></script>
-  <script src="{{asset('admins/vendor/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
-  <!-- Optional JS -->
-  <script src="{{asset('admins/vendor/chart.js/dist/Chart.min.js')}}"></script>
-  <script src="{{asset('admins/vendor/chart.js/dist/Chart.extension.js')}}"></script>
-  <!-- Argon JS -->
-  <script src="{{asset('admins/js/argon.js')}}"></script>
   <!-- Custom JS -->
   <script src="{{asset('js/custom.js')}}"></script>
+  <script>
+    $(document).ready(function(){
+      $('#myTab a[href="#{{old('tab')}}"]').tab('show')
+    })
+  </script>
  
 </body>
 

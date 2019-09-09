@@ -3,6 +3,9 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Reservation;
+use App\Trip;
+use App\Bus;
+use App\User;
 use DB;
 use Illuminate\Http\Request;
 
@@ -16,18 +19,16 @@ class AdminsController extends Controller {
 	public function index()
 	{
 		//Reservations view query
-		$query_resv = '
-			SELECT 
-				resv.id as id, cl.name as client_name, cl.mobile as client_mobile, cl.location as client_location, bus.name as bus_name, 
-				bus.type as bus_type, bus.seats_num as bus_seats, trp.source as trip_source, trp.destination as trip_destination, 
-				trp.trip_start_time as trip_start, trp.attend_time as trip_attend, trp.price as trip_price, resv.booked_seats_num as booked_seats, 
-				resv.created_at as created_at, resv.updated_at as updated_at
-			FROM 
-				reservations as resv, clients as cl, trips as trp, buses as bus
-			WHERE 
-				cl.id = resv.client_id AND trp.id = resv.trip_id AND bus.id = trp.bus_id
-		';
-		$data['reservations'] = DB::select($query_resv);
+		$data['reservations'] = DB::table('reservations_view')->get();
+		
+		//Trips view query
+		$data['trips'] = DB::table('trips_view')->get();
+
+		// Delayed Reservations view query
+		$data['delayed'] = DB::table('delayed_reservations_view')->get();
+
+		//Buses
+		$data['buses'] = Bus::orderBy('name', 'asc')->get();
 		
 		return view('admins.index')->with($data);
 	}
@@ -47,9 +48,85 @@ class AdminsController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function store(Request $request)
 	{
-		//
+		$output = '';
+
+		if($request->input('name') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل اسم المدير اولا
+				</p>
+			';
+		}
+		if($request->input('email') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل البريد الالكتروني اولا
+				</p>
+			';
+		}
+		if(!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix" , $request->input('email'))) {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل بريد الكتروني صحيح
+				</p>
+			';
+		}
+		if($request->input('password') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل كلمة المرور اولا
+				</p>
+			';
+		}
+		if($request->input('password2') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل تأكيد كلمة المرور اولا
+				</p>
+			';
+		}
+		if($request->input('password') != $request->input('password2')) {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					كلمة المرور و تأكيد كلمة المرور مختلفان
+				</p>
+			';
+		}
+
+		if(
+			$request->input('name') != '' &&
+			$request->input('email') != '' &&
+			$request->input('password') != '' &&
+			$request->input('password2') != '' &&
+			$request->input('password') == $request->input('password2')
+		) 
+		{
+			$user = new User();
+			$user->name = $request->input('name');
+			$user->email = $request->input('email');
+			$user->password = bcrypt($request->input('password'));
+			$user->remember_token = $request->input('_token');
+			$result = $user->save();
+
+			if($result) {
+				$output .= '
+				<p class="alert alert-success text-center">
+					تمت اضافة المدير بنجاح
+				</p>
+			';
+			}
+			else {
+				$output .= '
+				<p class="alert alert-warning text-center">
+					حصل خطأ اثناء العملية
+				</p>
+			';
+			}
+		}
+
+		echo $output;
 	}
 
 	/**
@@ -94,6 +171,414 @@ class AdminsController extends Controller {
 	public function destroy($id)
 	{
 		//
+	}
+
+	/**
+	 * Refresh the reservations table data.
+	 * 
+	 * @return Response
+	 */
+	public function reservationsRefresh(Request $request)
+	{
+		$reservations = DB::table('reservations_view')->get();
+
+		$data = '';
+		$i = 1;
+
+		$data .= '
+			<table class="table table-striped table-bordered table-hover direction-rtl">
+				<thead class="thead-light">
+					<tr>
+						<th class="text-center">#</th>
+						<th class="text-center">الإسم</th>
+						<th class="text-center">البداية</th>
+						<th class="text-center">الوجهة</th>
+						<th class="text-center">نوع الباص</th>
+						<th class="text-center">عدد المقاعد</th>
+						<th class="text-center">الدفع</th>
+						<th class="text-center">التاريخ</th>
+					</tr>
+				</thead>
+				<tbody class="tbl-btn-p" id="tbl-row" ondblclick="document.getElementById(\'tbl-row\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row\').classList.remove(\'active\')">
+		';
+		foreach($reservations as $resv)
+		{
+			$data .= '<tr>';
+			$data .= '<td class="text-center">'.$i.'</td>';
+			$data .= '<td class="text-center">'.$resv->client_name.'</td>';
+			$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
+			$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
+			$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
+			$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+			$data .= '<td class="text-center">';
+			$data .=	$resv->payed == 1? '<i class="fas fa-check-circle text-success"></i>':'<i class="fas fa-times-circle text-danger"></i>';
+			$data .= '</td>';
+			$data .= '<td class="text-center">'.  date("M d (h:ia)",strtotime($resv->created_at)) .'</td>';
+			$data .= '<td class="text-center tbl-btn animated slideInLeft px-1">
+				<a href="reservations/'. $resv->id .'/edit">
+					<i class="fas fa-edit text-primary mr-2"></i>
+				</a>  
+				<a href="reservations/'. $resv->id .'/delete">
+					<i class="fas fa-trash text-danger mr-2"></i>
+				</a> 
+			</td>';
+		$data .= '</tr>';
+		$i++;
+		}
+		$data .= '
+				</tbody>
+			</table>
+		';
+
+		echo $data;
+	}
+
+	/**
+	 * Search the reservations table data.
+	 * 
+	 * @return Response
+	 */
+	public function reservationsSearch(Request $request)
+	{
+		$search = $request->input('query');
+		$reservations = DB::table('reservations_view')
+			->where('client_name', 'LIKE', '%'.$search.'%')
+			->orWhere('trip_source', 'LIKE', '%'.$search.'%')
+			->orWhere('trip_destination', 'LIKE', '%'.$search.'%')
+			->orWhere('booked_seats', 'LIKE', '%'.$search.'%')
+			->orWhere('bus_type', 'LIKE', '%'.$search.'%')
+			->get();
+		$data = '';
+		$i = 1;
+
+		if(!empty($reservations))
+		{
+			$data .= '
+			<table class="table table-striped table-bordered table-hover direction-rtl">
+				<thead class="thead-light">
+					<tr>
+						<th class="text-center">#</th>
+						<th class="text-center">الإسم</th>
+						<th class="text-center">البداية</th>
+						<th class="text-center">الوجهة</th>
+						<th class="text-center">نوع الباص</th>
+						<th class="text-center">عدد المقاعد</th>
+						<th class="text-center">الدفع</th>
+						<th class="text-center">التاريخ</th>
+					</tr>
+				</thead>
+				<tbody class="tbl-btn-p" id="tbl-row" ondblclick="document.getElementById(\'tbl-row\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row\').classList.remove(\'active\')">
+			';
+			foreach($reservations as $resv)
+			{
+				$data .= '<tr>';
+				$data .= '<td class="text-center">'.$i.'</td>';
+				$data .= '<td class="text-center">'.$resv->client_name.'</td>';
+				$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
+				$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
+				$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
+				$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+				$data .= '<td class="text-center">';
+				$data .=	$resv->payed == 1? '<i class="fas fa-check-circle text-success"></i>':'<i class="fas fa-times-circle text-danger"></i>';
+				$data .= '</td>';
+				$data .= '<td class="text-center">'.  date("M d (h:ia)",strtotime($resv->created_at)) .'</td>';
+				$data .= '<td class="text-center tbl-btn animated slideInLeft px-1">
+					<a href="reservations/'. $resv->id .'/edit">
+						<i class="fas fa-edit text-primary mr-2"></i>
+					</a>  
+					<a href="reservations/'. $resv->id .'/delete">
+						<i class="fas fa-trash text-danger mr-2"></i>
+					</a> 
+				</td>';
+			$data .= '</tr>';
+			$i++;
+			}
+			$data .= '
+					</tbody>
+				</table>
+			';
+		}
+		else
+		{
+			$data .= '
+			
+					<div class="text-center mt-5">
+						<i class="fa fa-ban text-warning fa-2x text-center"></i>
+						<h2 class="text-center text-warning">لا يوجد نتائج توافق بحثك</h2>
+					</div>
+
+			';
+		}
+
+		echo $data;
+	}
+
+	/**
+	 * Refresh the delayed reservations table data.
+	 * 
+	 * @return Response
+	 */
+	public function delayedRefresh(Request $request)
+	{
+		$reservations = DB::table('delayed_reservations_view')->get();
+
+		$data = '';
+		$i = 1;
+
+		$data .= '
+			<table class="table table-striped table-bordered table-hover direction-rtl">
+				<thead class="thead-light">
+					<tr>
+						<th class="text-center">#</th>
+						<th class="text-center">الإسم</th>
+						<th class="text-center">البداية</th>
+						<th class="text-center">الوجهة</th>
+						<th class="text-center">نوع الباص</th>
+						<th class="text-center">التاريخ</th>
+						<th class="text-center">عدد المقاعد</th>
+					</tr>
+				</thead>
+				<tbody class="tbl-btn-p" id="tbl-row-d" ondblclick="document.getElementById(\'tbl-row-d\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row-d\').classList.remove(\'active\')">
+		';
+		foreach($reservations as $resv)
+		{
+			$data .= '<tr>';
+			$data .= '<td class="text-center">'.$i.'</td>';
+			$data .= '<td class="text-center">'.$resv->client_name.'</td>';
+			$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
+			$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
+			$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
+			$data .= '<td class="text-center">'.  date("M d",strtotime($resv->created_at)) .'</td>';
+			$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+			$data .= '<td class="text-center tbl-btn animated slideInLeft">
+				<a href="reservations/'. $resv->id .'/edit">
+					<i class="fas fa-edit text-primary mr-2"></i>
+				</a>  
+				<a href="reservations/'. $resv->id .'/delete">
+					<i class="fas fa-trash text-danger mr-2"></i>
+				</a> 
+			</td>';
+		$data .= '</tr>';
+		$i++;
+		}
+		$data .= '
+				</tbody>
+			</table>
+		';
+
+		echo $data;
+	}
+
+	/**
+	 * Search the delayed reservations table data.
+	 * 
+	 * @return Response
+	 */
+	public function delayedSearch(Request $request)
+	{
+		$search = $request->input('query');
+		$reservations = DB::table('delayed_reservations_view')
+			->where('client_name', 'LIKE', '%'.$search.'%')
+			->orWhere('trip_source', 'LIKE', '%'.$search.'%')
+			->orWhere('trip_destination', 'LIKE', '%'.$search.'%')
+			->orWhere('booked_seats', 'LIKE', '%'.$search.'%')
+			->orWhere('bus_type', 'LIKE', '%'.$search.'%')
+			->get();
+		$data = '';
+		$i = 1;
+
+		if(!empty($reservations))
+		{
+			$data .= '
+				<table class="table table-striped table-bordered table-hover direction-rtl">
+					<thead class="thead-light">
+						<tr>
+							<th class="text-center">#</th>
+							<th class="text-center">الإسم</th>
+							<th class="text-center">البداية</th>
+							<th class="text-center">الوجهة</th>
+							<th class="text-center">نوع الباص</th>
+							<th class="text-center">التاريخ</th>
+							<th class="text-center">عدد المقاعد</th>
+						</tr>
+					</thead>
+					<tbody class="tbl-btn-p" id="tbl-row-d" ondblclick="document.getElementById(\'tbl-row-d\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row-d\').classList.remove(\'active\')">
+			';
+			foreach($reservations as $resv)
+			{
+				$data .= '<tr>';
+				$data .= '<td class="text-center">'.$i.'</td>';
+				$data .= '<td class="text-center">'.$resv->client_name.'</td>';
+				$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
+				$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
+				$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
+				$data .= '<td class="text-center">'.  date("M d",strtotime($resv->created_at)) .'</td>';
+				$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+				$data .= '<td class="text-center tbl-btn animated slideInLeft px-1">
+					<a href="reservations/'. $resv->id .'/edit">
+						<i class="fas fa-edit text-primary mr-2"></i>
+					</a>  
+					<a href="reservations/'. $resv->id .'/delete">
+						<i class="fas fa-trash text-danger mr-2"></i>
+					</a> 
+				</td>';
+				$data .= '</tr>';
+				$i++;
+			}
+			$data .= '
+					</tbody>
+				</table>
+			';
+		}
+		else
+		{
+			$data .= '
+			
+					<div class="text-center mt-5">
+						<i class="fa fa-ban text-warning fa-2x text-center"></i>
+						<h2 class="text-center text-warning">لا يوجد نتائج توافق بحثك</h2>
+					</div>
+
+			';
+		}
+
+		echo $data;
+	}
+
+	/**
+	 * Refresh the Tripes table data.
+	 * 
+	 * @return Response
+	 */
+	public function tripesRefresh(Request $request)
+	{
+		$trips = DB::table('trips_view')->get();
+
+		$data = '';
+		$i = 1;
+
+		$data .= '
+		<table class="table table-striped table-bordered hover direction-rtl">
+		<thead>
+			<tr>
+				<th class="text-center">#</th>
+				<th class="text-center">البداية</th>
+				<th class="text-center">الوجهة</th>
+				<th class="text-center">الحضور</th>
+				<th class="text-center">الانطلاق</th>
+				<th class="text-center">نوع الباص</th>
+				<th class="text-center">عدد المقاعد</th>
+				<th class="text-center tbl-btn-p">التذكرة</th>
+			</tr>
+		</thead>
+		<tbody class="tbl-btn-p" id="tbl-row-t" ondblclick="document.getElementById(\'tbl-row-t\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row-t\').classList.remove(\'active\')">
+		';
+		foreach($trips as $trip)
+		{
+			$data .= '<tr>';
+			$data .= '<td class="text-center">'.$i.'</td>';
+			$data .= '<td class="text-center">'.$trip->source.'</td>';
+			$data .= '<td class="text-center">'.$trip->destination.'</td>';
+			$data .= '<td class="text-center">'.  date("h:ia",strtotime($trip->attend)) .'</td>';
+			$data .= '<td class="text-center">'.  date("h:ia",strtotime($trip->start)) .'</td>';
+			$data .= '<td class="text-center">'.$trip->bus_type.'</td>';
+			$data .= '<td class="text-center">'.$trip->seats.'</td>';
+			$data .= '<td class="text-center">'.$trip->price.'</td>';
+			$data .= '<td class="text-center tbl-btn animated slideInLeft">
+				<a href="tripes/'. $trip->id .'/edit">
+					<i class="fas fa-edit text-primary mr-2"></i>
+				</a>  
+				<a href="tripes/'. $trip->id .'/delete">
+					<i class="fas fa-trash text-danger mr-2"></i>
+				</a> 
+			</td>';
+		$data .= '</tr>';
+		$i++;
+		}
+		$data .= '
+				</tbody>
+			</table>
+		';
+
+		echo $data;
+	}
+
+	/**
+	 * Search the tripes reservations table data.
+	 * 
+	 * @return Response
+	 */
+	public function tripesSearch(Request $request)
+	{
+		$search = $request->input('query');
+		$trips = DB::table('trips_view')
+			->where('price', 'LIKE', '%'.$search.'%')
+			->orWhere('source', 'LIKE', '%'.$search.'%')
+			->orWhere('destination', 'LIKE', '%'.$search.'%')
+			->orWhere('seats', 'LIKE', '%'.$search.'%')
+			->orWhere('bus_type', 'LIKE', '%'.$search.'%')
+			->get();
+		$data = '';
+		$i = 1;
+
+		if(!empty($trips))
+		{
+			$data .= '
+				<table class="table table-striped table-bordered hover direction-rtl">
+					<thead>
+						<tr>
+							<th class="text-center">#</th>
+							<th class="text-center">البداية</th>
+							<th class="text-center">الوجهة</th>
+							<th class="text-center">الحضور</th>
+							<th class="text-center">الانطلاق</th>
+							<th class="text-center">نوع الباص</th>
+							<th class="text-center">عدد المقاعد</th>
+							<th class="text-center tbl-btn-p">التذكرة</th>
+						</tr>
+					</thead>
+					<tbody class="tbl-btn-p" id="tbl-row-t" ondblclick="document.getElementById(\'tbl-row-t\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row-t\').classList.remove(\'active\')">
+			';
+			foreach($trips as $trip)
+			{
+				$data .= '<tr>';
+				$data .= '<td class="text-center">'.$i.'</td>';
+				$data .= '<td class="text-center">'.$trip->source.'</td>';
+				$data .= '<td class="text-center">'.$trip->destination.'</td>';
+				$data .= '<td class="text-center">'.date("h:ia",strtotime($trip->attend)).'</td>';
+				$data .= '<td class="text-center">'.date("h:ia",strtotime($trip->start)).'</td>';
+				$data .= '<td class="text-center">'.$trip->bus_type.'</td>';
+				$data .= '<td class="text-center">'.$trip->seats.'</td>';
+				$data .= '<td class="text-center">'.$trip->price.'</td>';
+				$data .= '<td class="text-center tbl-btn animated slideInLeft">
+					<a href="tripes/'. $trip->id .'/edit">
+						<i class="fas fa-edit text-primary mr-2"></i>
+					</a>  
+					<a href="tripes/'. $trip->id .'/delete">
+						<i class="fas fa-trash text-danger mr-2"></i>
+					</a> 
+				</td>';
+			$data .= '</tr>';
+			$i++;
+			}
+			$data .= '
+					</tbody>
+				</table>
+			';
+		}
+		else
+		{
+			$data .= '
+			
+					<div class="text-center mt-5">
+						<i class="fa fa-ban text-warning fa-2x text-center"></i>
+						<h2 class="text-center text-warning">لا يوجد نتائج توافق بحثك</h2>
+					</div>
+
+			';
+		}
+
+		echo $data;
 	}
 
 }
