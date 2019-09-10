@@ -53,6 +53,9 @@ Route::post('/tripes/refresh', 'AdminsController@tripesRefresh');
 /* Search Tripes Route */
 Route::post('/tripes/search', 'AdminsController@tripesSearch');
 
+/* Truncate Tripes Route */
+Route::get('/tripes/truncate', 'AdminsController@tripesTruncate');
+
 /* Buses Resources */
 Route::resource('buses', 'BusesController');
 /* Tripes Resources */
