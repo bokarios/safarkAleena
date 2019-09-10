@@ -110,6 +110,11 @@
               @if($trips)
               <div class="row">
                 <div class="col-12">
+                  <a href="tripes/truncate" class="btn btn-outline-warning">مسح جميع معلومات الرحلات</a>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
                   <div class="col-xl-5 col-lg-6 col-md-10 col-sm-7 ml-auto pr-0">
                     <div class="form-group mx-md-5 mx-sm-3">
                       <label class="sr-only" for="trip-search">search</label>
