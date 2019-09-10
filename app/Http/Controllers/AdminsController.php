@@ -581,4 +581,22 @@ class AdminsController extends Controller {
 		echo $data;
 	}
 
+	/**
+	 * Truncate the tripes table data.
+	 * 
+	 * @return Response
+	 */
+	public function tripesTruncate()
+	{
+		$result = DB::table('trips')->delete();
+
+		if($result)
+		{
+			return back()->with('success', 'تم مسح جميع معلومات الرحلات')->withInput(['tab'=>'nav-trip']);
+		}
+		else {
+			return back()->with('warning', 'حصل خطأ اثناء العملية')->withInput(['tab'=>'nav-trip']);
+		}
+	}
+
 }
