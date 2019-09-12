@@ -1,0 +1,23 @@
+{
+  "trips_response": [
+    {
+      "id": 1,
+      "source": "",
+      "destination": "",
+      "avilable_seats": "",
+      "trip_start_time": "",
+      "attend_time": "",
+      "price": "",
+      "bus": {
+        "name": ""
+      }
+    }
+  ],
+  "reservation_request": {
+    "name": "",
+    "mobile": "",
+    "location": "",
+    "trip_id": "",
+    "booked_seats": ""
+  }
+}

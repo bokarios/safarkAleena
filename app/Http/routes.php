@@ -79,3 +79,8 @@ Route::controllers([
 	'auth' => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',
 ]);
+
+//API ROUTES
+Route::post('reserve', 'API\ReservationsApiController@clientReserve');
+Route::get('trips', 'API\TripsApiController@getTrips');
+
