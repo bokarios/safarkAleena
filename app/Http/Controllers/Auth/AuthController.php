@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Controllers\Auth\Session;
 use Illuminate\Contracts\Auth\Guard;
@@ -80,20 +79,6 @@ class AuthController extends Controller {
         }
 
         return back()->with('warning', 'البريد الالكترني أو كلمة المرور خطأ');;
-    }
-
-    /* Register get post methods */
-    protected function getRegister() {
-        return View('auth.register');
-    }
-
-    protected function postRegister(RegisterRequest $request) {
-
-			$this->user->name = $request->name;
-			$this->user->email = $request->email;
-			$this->user->password = bcrypt($request->password);
-			$this->user->save();
-			return redirect('/');
     }
 
     /**
