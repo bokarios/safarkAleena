@@ -81,6 +81,8 @@ Route::controllers([
 ]);
 
 //API ROUTES
-Route::post('reserve', 'API\ReservationsApiController@clientReserve');
-Route::get('trips', 'API\TripsApiController@getTrips');
+Route::get('api/reserve', 'API\ReservationsApiController@clientReserve');
+Route::get('api/trips', 'API\TripsApiController@getTrips');
+Route::get('api/delayed', 'API\ReservationsApiController@delayedClientReserve');
+
 

@@ -1,4 +1,5 @@
-<?php namespace App\Http\Controllers;
+<?php 
+namespace App\Http\Controllers\API;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -25,12 +26,15 @@ class ReservationsApiController extends Controller {
         $reservation->booked_seats_num =$input['booked_seats'];
         $reservation->save();
 
-        $trip = DB::table('trips')->find($input['trip_id']);
-        if($trip->avilable_seats >= $input['booked_seats']){
-            $trip->update(['avilable_seats'=> ($trip->avilable_seats - $input['booked_seats']) ]);
-            return response()->json('تم حجر الرحلة ');
-        }else
-            return response()->json('عدد المقاعد المطلوبة غير متوفر');
+        $trip = Trip::where('id', '=', $input['trip_id'])->first();
+        $avilable = $trip->avilable_seats;
+
+        DB::table('trips')
+            ->where('id', '=', $input['trip_id'])
+            ->update(['avilable_seats' => $avilable - $input['booked_seats'] ]);
+
+        return response()->json('تم حجر الرحلة ');
+       
      }
 
      public function delayedClientReserve(){
@@ -43,9 +47,13 @@ class ReservationsApiController extends Controller {
         $delayed_reservation = new DelayedReservation();
         $delayed_reservation->booked_seats_num = $input['booked_seats'];
         $delayed_reservation->reserve_date = $input['date'];
-
+        $delayed_reservation->static_trip_id = $input['static_trip_id'];
         $delayed_reservation->save();
 
+     }
+
+     public function getToken(){
+        return response()->json(['token'=>csrf_token()]);
      }
    
 }
