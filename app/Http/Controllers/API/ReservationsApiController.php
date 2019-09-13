@@ -3,6 +3,7 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Reservation;
+use App\DelayedReservation;
 use App\Trip;
 use App\Client;
 use DB;
@@ -16,7 +17,6 @@ class ReservationsApiController extends Controller {
         $client = new Client();
         $client->name = $input['name'];
         $client->mobile = $input['mobile'];
-        $client->location = $input['location'];
         $client->save();
 
         $reservation = new Reservation();
@@ -31,6 +31,21 @@ class ReservationsApiController extends Controller {
             return response()->json('تم حجر الرحلة ');
         }else
             return response()->json('عدد المقاعد المطلوبة غير متوفر');
+     }
+
+     public function delayedClientReserve(){
+        $input = $request->all();
+        $client = new Client();
+        $client->name = $input['name'];
+        $client->mobile = $input['mobile'];
+        $client->save();
+
+        $delayed_reservation = new DelayedReservation();
+        $delayed_reservation->booked_seats_num = $input['booked_seats'];
+        $delayed_reservation->reserve_date = $input['date'];
+
+        $delayed_reservation->save();
+
      }
    
 }
