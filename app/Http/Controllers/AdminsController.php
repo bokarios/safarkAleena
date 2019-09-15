@@ -19,13 +19,61 @@ class AdminsController extends Controller {
 	public function index()
 	{
 		//Reservations view query
-		$data['reservations'] = DB::table('reservations_view')->get();
+		$query_reservations = "
+			SELECT
+				rsv.id AS id,
+				cl.name AS client_name,
+				cl.mobile AS client_mobile,
+				cl.location AS client_location,
+				bs.name AS bus_name,
+				bs.type AS bus_type,
+				bs.seats_num AS bus_seats,
+				trp.source AS trip_source,
+				trp.destination AS trip_destination,
+				trp.attend_time AS trip_attend,
+				trp.trip_start_time AS trip_start,
+				trp.price AS trip_price,
+				rsv.booked_seats_num AS booked_seats,
+				rsv.payed AS payed,
+				rsv.created_at AS created_at,
+				rsv.updated_at AS updated_at
+			FROM
+				reservations AS rsv,
+				trips AS trp,
+				clients AS cl,
+				buses AS bs
+			WHERE
+				rsv.client_id = cl.id AND
+				rsv.trip_id = trp.id AND
+				trp.bus_id = bs.id
+		";
+		$data['reservations'] = DB::select($query_reservations);
 		
 		//Trips view query
 		$data['trips'] = DB::table('trips_view')->get();
 
 		// Delayed Reservations view query
-		$data['delayed'] = DB::table('delayed_reservations_view')->get();
+		$query_delayed = "
+			SELECT
+				rsv.id AS id,
+				cl.name AS client_name,
+				cl.mobile AS client_mobile,
+				cl.location AS client_location,
+				trp.source AS trip_source,
+				trp.destination AS trip_destination,
+				rsv.booked_seats_num AS booked_seats,
+				rsv.reserve_date AS date,
+				rsv.created_at AS created_at,
+				rsv.updated_at AS updated_at
+			FROM
+				delayed_reservations AS rsv,
+				static_trips AS trp,
+				clients AS cl
+			WHERE
+				rsv.client_id = cl.id AND
+				rsv.static_trip_id = trp.id
+		";
+		$data['delayed'] = DB::select($query_delayed);
 
 		//Buses
 		$data['buses'] = Bus::orderBy('name', 'asc')->get();
@@ -320,7 +368,27 @@ class AdminsController extends Controller {
 	 */
 	public function delayedRefresh(Request $request)
 	{
-		$reservations = DB::table('delayed_reservations_view')->get();
+		$query = "
+			SELECT
+				rsv.id AS id,
+				cl.name AS client_name,
+				cl.mobile AS client_mobile,
+				cl.location AS client_location,
+				trp.source AS trip_source,
+				trp.destination AS trip_destination,
+				rsv.booked_seats_num AS booked_seats,
+				rsv.reserve_date AS date,
+				rsv.created_at AS created_at,
+				rsv.updated_at AS updated_at
+			FROM
+				delayed_reservations AS rsv,
+				static_trips AS trp,
+				clients AS cl
+			WHERE
+				rsv.client_id = cl.id AND
+				rsv.static_trip_id = trp.id
+		";
+		$reservations = DB::select($query);
 
 		$data = '';
 		$i = 1;
@@ -333,7 +401,6 @@ class AdminsController extends Controller {
 						<th class="text-center">الإسم</th>
 						<th class="text-center">البداية</th>
 						<th class="text-center">الوجهة</th>
-						<th class="text-center">نوع الباص</th>
 						<th class="text-center">التاريخ</th>
 						<th class="text-center">عدد المقاعد</th>
 					</tr>
@@ -347,8 +414,7 @@ class AdminsController extends Controller {
 			$data .= '<td class="text-center">'.$resv->client_name.'</td>';
 			$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
 			$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
-			$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
-			$data .= '<td class="text-center">'.  date("M d",strtotime($resv->created_at)) .'</td>';
+			$data .= '<td class="text-center">'.  date("M d, Y",strtotime($resv->created_at)) .'</td>';
 			$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
 			$data .= '<td class="text-center tbl-btn animated slideInLeft">
 				<a href="reservations/'. $resv->id .'/edit">
@@ -377,13 +443,33 @@ class AdminsController extends Controller {
 	public function delayedSearch(Request $request)
 	{
 		$search = $request->input('query');
+		$query = "
+			SELECT
+				rsv.id AS id,
+				cl.name AS client_name,
+				cl.mobile AS client_mobile,
+				cl.location AS client_location,
+				trp.source AS trip_source,
+				trp.destination AS trip_destination,
+				rsv.booked_seats_num AS booked_seats,
+				rsv.reserve_date AS date,
+				rsv.created_at AS created_at,
+				rsv.updated_at AS updated_at
+			FROM
+				delayed_reservations AS rsv,
+				static_trips AS trp,
+				clients AS cl
+			WHERE
+				rsv.client_id = cl.id AND
+				rsv.static_trip_id = trp.id
+		";
 		$reservations = DB::table('delayed_reservations_view')
 			->where('client_name', 'LIKE', '%'.$search.'%')
 			->orWhere('trip_source', 'LIKE', '%'.$search.'%')
 			->orWhere('trip_destination', 'LIKE', '%'.$search.'%')
 			->orWhere('booked_seats', 'LIKE', '%'.$search.'%')
-			->orWhere('bus_type', 'LIKE', '%'.$search.'%')
-			->get();
+			->get()
+			;
 		$data = '';
 		$i = 1;
 
@@ -397,7 +483,6 @@ class AdminsController extends Controller {
 							<th class="text-center">الإسم</th>
 							<th class="text-center">البداية</th>
 							<th class="text-center">الوجهة</th>
-							<th class="text-center">نوع الباص</th>
 							<th class="text-center">التاريخ</th>
 							<th class="text-center">عدد المقاعد</th>
 						</tr>
@@ -411,8 +496,7 @@ class AdminsController extends Controller {
 				$data .= '<td class="text-center">'.$resv->client_name.'</td>';
 				$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
 				$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
-				$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
-				$data .= '<td class="text-center">'.  date("M d",strtotime($resv->created_at)) .'</td>';
+				$data .= '<td class="text-center">'.  date("M d, Y",strtotime($resv->created_at)) .'</td>';
 				$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
 				$data .= '<td class="text-center tbl-btn animated slideInLeft px-1">
 					<a href="reservations/'. $resv->id .'/edit">
@@ -504,7 +588,7 @@ class AdminsController extends Controller {
 	}
 
 	/**
-	 * Search the tripes reservations table data.
+	 * Search the tripes table data.
 	 * 
 	 * @return Response
 	 */

@@ -229,7 +229,6 @@
                       <th class="text-center">الإسم</th>
                       <th class="text-center">البداية</th>
                       <th class="text-center">الوجهة</th>
-                      <th class="text-center">نوع الباص</th>
                       <th class="text-center">التاريخ</th>
                       <th class="text-center tbl-btn-p">عدد المقاعد</th>
                     </tr>
@@ -242,8 +241,7 @@
                         <td class="text-center">{{$d->client_name}}</td>
                         <td class="text-center">{{$d->trip_source}}</td>
                         <td class="text-center">{{$d->trip_destination}}</td>
-                        <td class="text-center">{{$d->bus_type}}</td>
-                        <td class="text-center">{{ date('M d', strtotime($d->date)) }}</td>
+                        <td class="text-center">{{ date('M d, Y', strtotime($d->date)) }}</td>
                         <td class="text-center">{{$d->booked_seats}}</td>
                         <td class="tbl-btn animated slideInLeft">
                           <a href="delayed/{{$d->id}}/edit">
