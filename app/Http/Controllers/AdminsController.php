@@ -19,64 +19,19 @@ class AdminsController extends Controller {
 	public function index()
 	{
 		//Reservations view query
-		$query_reservations = "
-			SELECT
-				rsv.id AS id,
-				cl.name AS client_name,
-				cl.mobile AS client_mobile,
-				cl.location AS client_location,
-				bs.name AS bus_name,
-				bs.type AS bus_type,
-				bs.seats_num AS bus_seats,
-				trp.source AS trip_source,
-				trp.destination AS trip_destination,
-				trp.attend_time AS trip_attend,
-				trp.trip_start_time AS trip_start,
-				trp.price AS trip_price,
-				rsv.booked_seats_num AS booked_seats,
-				rsv.payed AS payed,
-				rsv.created_at AS created_at,
-				rsv.updated_at AS updated_at
-			FROM
-				reservations AS rsv,
-				trips AS trp,
-				clients AS cl,
-				buses AS bs
-			WHERE
-				rsv.client_id = cl.id AND
-				rsv.trip_id = trp.id AND
-				trp.bus_id = bs.id
-		";
-		$data['reservations'] = DB::select($query_reservations);
+		$data['reservations'] = DB::table('reservations_view')->get();
 		
 		//Trips view query
 		$data['trips'] = DB::table('trips_view')->get();
 
+		//Static trips view query
+		$data['static_trips'] = DB::table('static_trips')->get();
+
 		// Delayed Reservations view query
-		$query_delayed = "
-			SELECT
-				rsv.id AS id,
-				cl.name AS client_name,
-				cl.mobile AS client_mobile,
-				cl.location AS client_location,
-				trp.source AS trip_source,
-				trp.destination AS trip_destination,
-				rsv.booked_seats_num AS booked_seats,
-				rsv.reserve_date AS date,
-				rsv.created_at AS created_at,
-				rsv.updated_at AS updated_at
-			FROM
-				delayed_reservations AS rsv,
-				static_trips AS trp,
-				clients AS cl
-			WHERE
-				rsv.client_id = cl.id AND
-				rsv.static_trip_id = trp.id
-		";
-		$data['delayed'] = DB::select($query_delayed);
+		$data['delayed'] = DB::table('delayed_reservations_view')->get();
 
 		//Buses
-		$data['buses'] = Bus::orderBy('name', 'asc')->get();
+		$data['buses'] = Bus::orderBy('name', 'asc');
 		
 		return view('admins.index')->with($data);
 	}
