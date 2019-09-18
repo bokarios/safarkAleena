@@ -13,7 +13,7 @@ class TripsApiController extends Controller {
 
     public function getTrips(Request $request){
         $trips = Trip::with(['bus'])->get();
-        return response()->json($trips);
+        return response()->json((object)$trips);
     }
 	
 }
