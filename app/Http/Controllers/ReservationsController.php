@@ -81,6 +81,7 @@ class ReservationsController extends Controller {
 		$old_trip = $resv->trip_id;
 		$old_seats = $resv->booked_seats_num;
 		$old_payed = $resv->payed;
+		$old_pay_type = $resv->pay_type;
 		$change = false;
 
 		if($request->input('trip') != $old_trip) {
@@ -108,6 +109,17 @@ class ReservationsController extends Controller {
 		if($request->input('payed') != $old_payed) {
 			//update payed
 			$result = DB::table('reservations')->where('id', '=', $id)->update(['payed' => $request->input('payed')]);
+			if($result) {
+				$change = true;
+			}
+			else {
+				return back()->with('warning', 'حصل خطأ اثناء العملية');
+			}
+		}
+
+		if($request->input('pay_type') != $old_pay_type) {
+			//update pay type
+			$result = DB::table('reservations')->where('id', '=', $id)->update(['pay_type' => $request->input('pay_type')]);
 			if($result) {
 				$change = true;
 			}

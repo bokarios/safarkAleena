@@ -68,6 +68,11 @@ Route::get('users/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');
 Route::get('logout', 'Auth\AuthController@getLogout');
 
+/* Excel download */
+Route::get('/reservations/excel', 'MyController@reservationExcel');
+Route::get('/delayed/excel', 'MyController@delayedExcel');
+Route::get('/trips/excel', 'MyController@tripExcel');
+
 /* Authenticated users */
 Route::group(['middleware' => 'auth'], function()
 {

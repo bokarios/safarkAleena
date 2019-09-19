@@ -51,6 +51,7 @@
       </div>
       <!-- Navigation -->
       <ul class="navbar-nav nav nav-tabs pr-0" id="myTab" style="direction:rtl">
+        @if($admin->access == 0 || $admin->access == 1)
         <li class="nav-item text-center" style="font-size:22px">
           الاضافة
         </li>
@@ -64,11 +65,14 @@
             <i class="fa fa-plus-circle text-muted"></i> إضافة رحلة جديدة
           </a>
         </li>
+        @if($admin->access == 0)
         <li class="nav-item">
           <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-admin">
             <i class="fa fa-plus-circle text-muted"></i> إضافة مدير جديد
           </a>
         </li>
+        @endif
+        @endif
         <li class="nav-divider"><hr class="my-1"></li>
         <li class="nav-item-circle text-center" style="font-size:22px">
           القوائم
@@ -89,8 +93,6 @@
           </a>
         </li>
       </ul>
-      <!-- Divider -->
-      <hr class="my-3">
       <!-- Navigation -->
       <ul class="navbar-nav mb-md-3" style="direction:rtl">
         <li class="nav-item">

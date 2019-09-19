@@ -8,6 +8,7 @@ use App\Bus;
 use App\User;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminsController extends Controller {
 
@@ -18,11 +19,14 @@ class AdminsController extends Controller {
 	 */
 	public function index()
 	{
+		//Admin data
+		$data['admin'] = Auth::user();
+
 		//Reservations view query
 		$data['reservations'] = DB::table('reservations_view')->get();
 		
 		//Trips view query
-		$data['trips'] = DB::table('trips_view')->get();
+		$data['trips'] = DB::table('trips_view')->where('seats', '>', 0)->get();
 
 		//Static trips view query
 		$data['static_trips'] = DB::table('static_trips')->get();
@@ -31,7 +35,7 @@ class AdminsController extends Controller {
 		$data['delayed'] = DB::table('delayed_reservations_view')->get();
 
 		//Buses
-		$data['buses'] = Bus::orderBy('name', 'asc');
+		$data['buses'] = Bus::orderBy('name', 'asc')->get();
 		
 		return view('admins.index')->with($data);
 	}
@@ -76,6 +80,13 @@ class AdminsController extends Controller {
 				</p>
 			';
 		}
+		if($request->input('access') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					حدد صلاحية الوصول اولا
+				</p>
+			';
+		}
 		if($request->input('password') == '') {
 			$output .= '
 				<p class="alert alert-warning text-center">
@@ -103,12 +114,14 @@ class AdminsController extends Controller {
 			$request->input('email') != '' &&
 			$request->input('password') != '' &&
 			$request->input('password2') != '' &&
+			$request->input('access') != '' &&
 			$request->input('password') == $request->input('password2')
 		) 
 		{
 			$user = new User();
 			$user->name = $request->input('name');
 			$user->email = $request->input('email');
+			$user->access = $request->input('access');
 			$user->password = bcrypt($request->input('password'));
 			$user->remember_token = $request->input('_token');
 			$result = $user->save();
@@ -194,37 +207,45 @@ class AdminsController extends Controller {
 					<tr>
 						<th class="text-center">#</th>
 						<th class="text-center">الإسم</th>
+						<th class="text-center">الهاتف</th>
 						<th class="text-center">البداية</th>
 						<th class="text-center">الوجهة</th>
-						<th class="text-center">نوع الباص</th>
+						<th class="text-center">اسم الناقل</th>
+						<th class="text-center">اسم الباص</th>
 						<th class="text-center">عدد المقاعد</th>
+						<th class="text-center">طريقة الدفع</th>
+						<th class="text-center">رقم الحساب</th>
 						<th class="text-center">الدفع</th>
-						<th class="text-center">التاريخ</th>
+						<th class="text-center">الوقت</th>
 					</tr>
 				</thead>
-				<tbody class="tbl-btn-p" id="tbl-row" ondblclick="document.getElementById(\'tbl-row\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row\').classList.remove(\'active\')">
+				<tbody>
 		';
 		foreach($reservations as $resv)
 		{
 			$data .= '<tr>';
 			$data .= '<td class="text-center">'.$i.'</td>';
 			$data .= '<td class="text-center">'.$resv->client_name.'</td>';
+			$data .= '<td class="text-center">'.$resv->client_mobile.'</td>';
 			$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
 			$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
+			$data .= '<td class="text-center">'.$resv->bus_name.'</td>';
 			$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
 			$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+			$data .= '<td class="text-center">'.$resv->pay_type.'</td>';
+			$data .= '<td class="text-center">'.$resv->account_num.'</td>';
 			$data .= '<td class="text-center">';
 			$data .=	$resv->payed == 1? '<i class="fas fa-check-circle text-success"></i>':'<i class="fas fa-times-circle text-danger"></i>';
 			$data .= '</td>';
-			$data .= '<td class="text-center">'.  date("M d (h:ia)",strtotime($resv->created_at)) .'</td>';
-			$data .= '<td class="text-center tbl-btn animated slideInLeft px-1">
+			$data .= '<td class="text-center">'.  date("h:ia",strtotime($resv->created_at)) .'</td>';
+			$data .= Auth::user()->access == 0? '<td class="text-center">
 				<a href="reservations/'. $resv->id .'/edit">
 					<i class="fas fa-edit text-primary mr-2"></i>
 				</a>  
 				<a href="reservations/'. $resv->id .'/delete">
 					<i class="fas fa-trash text-danger mr-2"></i>
 				</a> 
-			</td>';
+			</td>': '';
 		$data .= '</tr>';
 		$i++;
 		}
@@ -246,10 +267,14 @@ class AdminsController extends Controller {
 		$search = $request->input('query');
 		$reservations = DB::table('reservations_view')
 			->where('client_name', 'LIKE', '%'.$search.'%')
+			->orWhere('client_mobile', 'LIKE', '%'.$search.'%')
 			->orWhere('trip_source', 'LIKE', '%'.$search.'%')
 			->orWhere('trip_destination', 'LIKE', '%'.$search.'%')
 			->orWhere('booked_seats', 'LIKE', '%'.$search.'%')
 			->orWhere('bus_type', 'LIKE', '%'.$search.'%')
+			->orWhere('bus_name', 'LIKE', '%'.$search.'%')
+			->orWhere('pay_type', 'LIKE', '%'.$search.'%')
+			->orWhere('account_num', 'LIKE', '%'.$search.'%')
 			->get();
 		$data = '';
 		$i = 1;
@@ -262,37 +287,45 @@ class AdminsController extends Controller {
 					<tr>
 						<th class="text-center">#</th>
 						<th class="text-center">الإسم</th>
+						<th class="text-center">الهاتف</th>
 						<th class="text-center">البداية</th>
 						<th class="text-center">الوجهة</th>
-						<th class="text-center">نوع الباص</th>
+						<th class="text-center">اسم الناقل</th>
+						<th class="text-center">اسم الباص</th>
 						<th class="text-center">عدد المقاعد</th>
+						<th class="text-center">طريقة الدفع</th>
+						<th class="text-center">رقم الحساب</th>
 						<th class="text-center">الدفع</th>
-						<th class="text-center">التاريخ</th>
+						<th class="text-center">الوقت</th>
 					</tr>
 				</thead>
-				<tbody class="tbl-btn-p" id="tbl-row" ondblclick="document.getElementById(\'tbl-row\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row\').classList.remove(\'active\')">
+				<tbody>
 			';
 			foreach($reservations as $resv)
 			{
 				$data .= '<tr>';
 				$data .= '<td class="text-center">'.$i.'</td>';
 				$data .= '<td class="text-center">'.$resv->client_name.'</td>';
+				$data .= '<td class="text-center">'.$resv->client_mobile.'</td>';
 				$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
 				$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
+				$data .= '<td class="text-center">'.$resv->bus_name.'</td>';
 				$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
 				$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+				$data .= '<td class="text-center">'.$resv->pay_type.'</td>';
+				$data .= '<td class="text-center">'.$resv->account_num.'</td>';
 				$data .= '<td class="text-center">';
 				$data .=	$resv->payed == 1? '<i class="fas fa-check-circle text-success"></i>':'<i class="fas fa-times-circle text-danger"></i>';
 				$data .= '</td>';
-				$data .= '<td class="text-center">'.  date("M d (h:ia)",strtotime($resv->created_at)) .'</td>';
-				$data .= '<td class="text-center tbl-btn animated slideInLeft px-1">
+				$data .= '<td class="text-center">'.  date("h:ia",strtotime($resv->created_at)) .'</td>';
+				$data .= Auth::user()->access == 0? '<td class="text-center">
 					<a href="reservations/'. $resv->id .'/edit">
 						<i class="fas fa-edit text-primary mr-2"></i>
 					</a>  
 					<a href="reservations/'. $resv->id .'/delete">
 						<i class="fas fa-trash text-danger mr-2"></i>
 					</a> 
-				</td>';
+				</td>': '';
 			$data .= '</tr>';
 			$i++;
 			}
@@ -354,31 +387,33 @@ class AdminsController extends Controller {
 					<tr>
 						<th class="text-center">#</th>
 						<th class="text-center">الإسم</th>
+						<th class="text-center">الهاتف</th>
 						<th class="text-center">البداية</th>
 						<th class="text-center">الوجهة</th>
 						<th class="text-center">التاريخ</th>
 						<th class="text-center">عدد المقاعد</th>
 					</tr>
 				</thead>
-				<tbody class="tbl-btn-p" id="tbl-row-d" ondblclick="document.getElementById(\'tbl-row-d\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row-d\').classList.remove(\'active\')">
+				<tbody>
 		';
 		foreach($reservations as $resv)
 		{
 			$data .= '<tr>';
 			$data .= '<td class="text-center">'.$i.'</td>';
 			$data .= '<td class="text-center">'.$resv->client_name.'</td>';
+			$data .= '<td class="text-center">'.$resv->client_mobile.'</td>';
 			$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
 			$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
 			$data .= '<td class="text-center">'.  date("M d, Y",strtotime($resv->created_at)) .'</td>';
 			$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
-			$data .= '<td class="text-center tbl-btn animated slideInLeft">
+			$data .= Auth::user()->access == 0? '<td class="text-center">
 				<a href="reservations/'. $resv->id .'/edit">
 					<i class="fas fa-edit text-primary mr-2"></i>
 				</a>  
 				<a href="reservations/'. $resv->id .'/delete">
 					<i class="fas fa-trash text-danger mr-2"></i>
 				</a> 
-			</td>';
+			</td>': '';
 		$data .= '</tr>';
 		$i++;
 		}
@@ -398,28 +433,10 @@ class AdminsController extends Controller {
 	public function delayedSearch(Request $request)
 	{
 		$search = $request->input('query');
-		$query = "
-			SELECT
-				rsv.id AS id,
-				cl.name AS client_name,
-				cl.mobile AS client_mobile,
-				cl.location AS client_location,
-				trp.source AS trip_source,
-				trp.destination AS trip_destination,
-				rsv.booked_seats_num AS booked_seats,
-				rsv.reserve_date AS date,
-				rsv.created_at AS created_at,
-				rsv.updated_at AS updated_at
-			FROM
-				delayed_reservations AS rsv,
-				static_trips AS trp,
-				clients AS cl
-			WHERE
-				rsv.client_id = cl.id AND
-				rsv.static_trip_id = trp.id
-		";
+
 		$reservations = DB::table('delayed_reservations_view')
 			->where('client_name', 'LIKE', '%'.$search.'%')
+			->orWhere('client_mobile', 'LIKE', '%'.$search.'%')
 			->orWhere('trip_source', 'LIKE', '%'.$search.'%')
 			->orWhere('trip_destination', 'LIKE', '%'.$search.'%')
 			->orWhere('booked_seats', 'LIKE', '%'.$search.'%')
@@ -436,31 +453,33 @@ class AdminsController extends Controller {
 						<tr>
 							<th class="text-center">#</th>
 							<th class="text-center">الإسم</th>
+							<th class="text-center">الهاتف</th>
 							<th class="text-center">البداية</th>
 							<th class="text-center">الوجهة</th>
 							<th class="text-center">التاريخ</th>
 							<th class="text-center">عدد المقاعد</th>
 						</tr>
 					</thead>
-					<tbody class="tbl-btn-p" id="tbl-row-d" ondblclick="document.getElementById(\'tbl-row-d\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row-d\').classList.remove(\'active\')">
+					<tbody>
 			';
 			foreach($reservations as $resv)
 			{
 				$data .= '<tr>';
 				$data .= '<td class="text-center">'.$i.'</td>';
 				$data .= '<td class="text-center">'.$resv->client_name.'</td>';
+				$data .= '<td class="text-center">'.$resv->client_mobile.'</td>';
 				$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
 				$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
 				$data .= '<td class="text-center">'.  date("M d, Y",strtotime($resv->created_at)) .'</td>';
 				$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
-				$data .= '<td class="text-center tbl-btn animated slideInLeft px-1">
+				$data .= Auth::user()->access == 0? '<td class="text-center">
 					<a href="reservations/'. $resv->id .'/edit">
 						<i class="fas fa-edit text-primary mr-2"></i>
 					</a>  
 					<a href="reservations/'. $resv->id .'/delete">
 						<i class="fas fa-trash text-danger mr-2"></i>
 					</a> 
-				</td>';
+				</td>': '';
 				$data .= '</tr>';
 				$i++;
 			}
@@ -505,12 +524,13 @@ class AdminsController extends Controller {
 				<th class="text-center">الوجهة</th>
 				<th class="text-center">الحضور</th>
 				<th class="text-center">الانطلاق</th>
-				<th class="text-center">نوع الباص</th>
+				<th class="text-center">اسم الناقل</th>
+				<th class="text-center">اسم الباص</th>
 				<th class="text-center">عدد المقاعد</th>
-				<th class="text-center tbl-btn-p">التذكرة</th>
+				<th class="text-center">التذكرة</th>
 			</tr>
 		</thead>
-		<tbody class="tbl-btn-p" id="tbl-row-t" ondblclick="document.getElementById(\'tbl-row-t\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row-t\').classList.remove(\'active\')">
+		<tbody>
 		';
 		foreach($trips as $trip)
 		{
@@ -520,17 +540,18 @@ class AdminsController extends Controller {
 			$data .= '<td class="text-center">'.$trip->destination.'</td>';
 			$data .= '<td class="text-center">'.  date("h:ia",strtotime($trip->attend)) .'</td>';
 			$data .= '<td class="text-center">'.  date("h:ia",strtotime($trip->start)) .'</td>';
+			$data .= '<td class="text-center">'.$trip->bus_name.'</td>';
 			$data .= '<td class="text-center">'.$trip->bus_type.'</td>';
 			$data .= '<td class="text-center">'.$trip->seats.'</td>';
 			$data .= '<td class="text-center">'.$trip->price.'</td>';
-			$data .= '<td class="text-center tbl-btn animated slideInLeft">
+			$data .= Auth::user()->access == 0? '<td class="text-center">
 				<a href="tripes/'. $trip->id .'/edit">
 					<i class="fas fa-edit text-primary mr-2"></i>
 				</a>  
 				<a href="tripes/'. $trip->id .'/delete">
 					<i class="fas fa-trash text-danger mr-2"></i>
 				</a> 
-			</td>';
+			</td>': '';
 		$data .= '</tr>';
 		$i++;
 		}
@@ -556,6 +577,7 @@ class AdminsController extends Controller {
 			->orWhere('destination', 'LIKE', '%'.$search.'%')
 			->orWhere('seats', 'LIKE', '%'.$search.'%')
 			->orWhere('bus_type', 'LIKE', '%'.$search.'%')
+			->orWhere('bus_name', 'LIKE', '%'.$search.'%')
 			->get();
 		$data = '';
 		$i = 1;
@@ -571,12 +593,13 @@ class AdminsController extends Controller {
 							<th class="text-center">الوجهة</th>
 							<th class="text-center">الحضور</th>
 							<th class="text-center">الانطلاق</th>
-							<th class="text-center">نوع الباص</th>
+							<th class="text-center">اسم الناقل</th>
+							<th class="text-center">اسم الباص</th>
 							<th class="text-center">عدد المقاعد</th>
-							<th class="text-center tbl-btn-p">التذكرة</th>
+							<th class="text-center">التذكرة</th>
 						</tr>
 					</thead>
-					<tbody class="tbl-btn-p" id="tbl-row-t" ondblclick="document.getElementById(\'tbl-row-t\').classList.add(\'active\');" onclick="document.getElementById(\'tbl-row-t\').classList.remove(\'active\')">
+					<tbody>
 			';
 			foreach($trips as $trip)
 			{
@@ -586,17 +609,18 @@ class AdminsController extends Controller {
 				$data .= '<td class="text-center">'.$trip->destination.'</td>';
 				$data .= '<td class="text-center">'.date("h:ia",strtotime($trip->attend)).'</td>';
 				$data .= '<td class="text-center">'.date("h:ia",strtotime($trip->start)).'</td>';
+				$data .= '<td class="text-center">'.$trip->bus_name.'</td>';
 				$data .= '<td class="text-center">'.$trip->bus_type.'</td>';
 				$data .= '<td class="text-center">'.$trip->seats.'</td>';
 				$data .= '<td class="text-center">'.$trip->price.'</td>';
-				$data .= '<td class="text-center tbl-btn animated slideInLeft">
+				$data .= Auth::user()->access == 0?'<td class="text-center">
 					<a href="tripes/'. $trip->id .'/edit">
 						<i class="fas fa-edit text-primary mr-2"></i>
 					</a>  
 					<a href="tripes/'. $trip->id .'/delete">
 						<i class="fas fa-trash text-danger mr-2"></i>
 					</a> 
-				</td>';
+				</td>':'';
 			$data .= '</tr>';
 			$i++;
 			}

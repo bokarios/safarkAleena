@@ -14,7 +14,15 @@
           </div>
           <div class="card-body">
             @if($reservations)
-              <div class="row">
+              @if($admin->access == 0 || $admin->access == 1)
+              <div class="row mb-5 text-right">
+                <div class="col-12">
+                  <a href="reservations/truncate" class="btn btn-warning">مسح جميع معلومات الحجوزات</a>
+                  <a href="reservations/excel" class="btn btn-primary">عمل تقرير الحجوزات</a>
+                </div>
+              </div>
+              @endif
+              <div class="row mb-5">
                 <div class="col-12">
                   <div class="col-xl-5 col-lg-6 col-md-10 col-sm-7 ml-auto pr-0">
                     <div class="form-group mx-md-5 mx-sm-3">
@@ -40,24 +48,32 @@
                     <tr>
                       <th class="text-center">#</th>
                       <th class="text-center">الإسم</th>
+                      <th class="text-center">الهاتف</th>
                       <th class="text-center">البداية</th>
                       <th class="text-center">الوجهة</th>
-                      <th class="text-center">نوع الباص</th>
+                      <th class="text-center">اسم الناقل</th>
+                      <th class="text-center">اسم الباص</th>
                       <th class="text-center">عدد المقاعد</th>
+                      <th class="text-center">طريقة الدفع</th>
+                      <th class="text-center">رقم الحساب</th>
                       <th class="text-center">الدفع</th>
-                      <th class="text-center">التاريخ</th>
+                      <th class="text-center">الوقت</th>
                     </tr>
                   </thead>
-                  <tbody class="tbl-btn-p" id="tbl-row" ondblclick="document.getElementById('tbl-row').classList.add('active');" onclick="document.getElementById('tbl-row').classList.remove('active')">
+                  <tbody>
                     <?php $i = 1 ?>
                     @foreach($reservations as $resv)
                       <tr>
                         <td class="text-center">{{$i}}</td>
                         <td class="text-center">{{$resv->client_name}}</td>
+                        <td class="text-center">{{$resv->client_mobile}}</td>
                         <td class="text-center">{{$resv->trip_source}}</td>
                         <td class="text-center">{{$resv->trip_destination}}</td>
+                        <td class="text-center">{{$resv->bus_name}}</td>
                         <td class="text-center">{{$resv->bus_type}}</td>
                         <td class="text-center">{{$resv->booked_seats}}</td>
+                        <td class="text-center">{{$resv->pay_type}}</td>
+                        <td class="text-center">{{$resv->account_num}}</td>
                         <td class="text-center">
                           @if($resv->payed == 1)
                             <i class="fas fa-check-circle text-success"></i>
@@ -65,8 +81,9 @@
                             <i class="fas fa-times-circle text-danger"></i>
                           @endif
                         </td>
-                        <td class="text-center">{{ date('M d (h:ia)',strtotime($resv->created_at)) }}</td>
-                        <td class="text-center tbl-btn animated slideInLeft px-1">
+                        <td class="text-center">{{ date('h:ia',strtotime($resv->created_at)) }}</td>
+                        @if($admin->access == 0)
+                        <td class="text-center">
                           <a href="reservations/{{$resv->id}}/edit">
                             <i class="fas fa-edit text-primary mr-2"></i>
                           </a>  
@@ -74,6 +91,7 @@
                             <i class="fas fa-trash text-danger mr-2"></i>
                           </a> 
                         </td>
+                        @endif
                       </tr>
                       <?php $i++ ?>
                     @endforeach
@@ -108,12 +126,15 @@
           </div>
           <div class="card-body">
               @if($trips)
-              <div class="row">
+              @if($admin->access == 0 || $admin->access == 1)
+              <div class="row mb-5 text-right">
                 <div class="col-12">
-                  <a href="tripes/truncate" class="btn btn-outline-warning">مسح جميع معلومات الرحلات</a>
+                  <a href="tripes/truncate" class="btn btn-warning">مسح جميع معلومات الرحلات</a>
+                  <a href="trips/excel" class="btn btn-primary">عمل تقرير الرحلات</a>
                 </div>
               </div>
-              <div class="row">
+              @endif
+              <div class="row mb-5">
                 <div class="col-12">
                   <div class="col-xl-5 col-lg-6 col-md-10 col-sm-7 ml-auto pr-0">
                     <div class="form-group mx-md-5 mx-sm-3">
@@ -142,12 +163,13 @@
                       <th class="text-center">الوجهة</th>
                       <th class="text-center">الحضور</th>
                       <th class="text-center">الانطلاق</th>
+                      <th class="text-center">اسم الناقل</th>
                       <th class="text-center">نوع الباص</th>
                       <th class="text-center">عدد المقاعد</th>
-                      <th class="text-center tbl-btn-p">التذكرة</th>
+                      <th class="text-center">التذكرة</th>
                     </tr>
                   </thead>
-                  <tbody class="tbl-btn-p" id="tbl-row-t" ondblclick="document.getElementById('tbl-row-t').classList.add('active');" onclick="document.getElementById('tbl-row-t').classList.remove('active')">
+                  <tbody>
                     <?php $i = 1 ?>
                     @foreach($trips as $trip)
                       <tr>
@@ -156,10 +178,12 @@
                         <td class="text-center">{{$trip->destination}}</td>
                         <td class="text-center">{{ date('h:ia', strtotime($trip->attend)) }}</td>
                         <td class="text-center">{{ date('h:ia', strtotime($trip->start)) }}</td>
+                        <td class="text-center">{{$trip->bus_name}}</td>
                         <td class="text-center">{{$trip->bus_type}}</td>
                         <td class="text-center">{{$trip->seats}}</td>
                         <td class="text-center">{{$trip->price}}</td>
-                        <td class="tbl-btn animated slideInLeft">
+                        @if($admin->access == 0)
+                        <td class="text-center">
                           <a href="tripes/{{$trip->id}}/edit">
                             <i class="fas fa-edit text-primary sp-i mr-2"></i>
                           </a>
@@ -167,6 +191,7 @@
                             <i class="fas fa-trash text-danger sp-i mr-2"></i>
                           </a>
                         </td>
+                        @endif
                       </tr>
                       <?php $i++ ?>
                     @endforeach
@@ -200,8 +225,16 @@
             <hr class="bg-gradient-primary w-50 my-3" style="height:2px">
           </div>
           <div class="card-body">
-              @if($delayed)
-              <div class="row">
+            @if($delayed)
+              @if($admin->access == 0 || $admin->access == 1)
+              <div class="row mb-5 text-right">
+                <div class="col-12">
+                  <a href="delayed/truncate" class="btn btn-warning">مسح جميع معلومات الحجوزات المؤجلة</a>
+                  <a href="delayed/excel" class="btn btn-primary">عمل تقرير الحجوزات المؤجلة</a>
+                </div>
+              </div>
+              @endif
+              <div class="row mb-5">
                 <div class="col-12">
                   <div class="col-xl-5 col-lg-6 col-md-10 col-sm-7 ml-auto pr-0">
                     <div class="form-group mx-md-5 mx-sm-3">
@@ -227,23 +260,26 @@
                     <tr>
                       <th class="text-center">#</th>
                       <th class="text-center">الإسم</th>
+                      <th class="text-center">الهاتف</th>
                       <th class="text-center">البداية</th>
                       <th class="text-center">الوجهة</th>
                       <th class="text-center">التاريخ</th>
-                      <th class="text-center tbl-btn-p">عدد المقاعد</th>
+                      <th class="text-center">عدد المقاعد</th>
                     </tr>
                   </thead>
-                  <tbody class="tbl-btn-p" id="tbl-row-d" ondblclick="document.getElementById('tbl-row-d').classList.add('active');" onclick="document.getElementById('tbl-row-d').classList.remove('active')">
+                  <tbody>
                     <?php $i = 1 ?>
                     @foreach($delayed as $d)
                       <tr>
                         <td class="text-center">{{$i}}</td>
                         <td class="text-center">{{$d->client_name}}</td>
+                        <td class="text-center">{{$d->client_mobile}}</td>
                         <td class="text-center">{{$d->trip_source}}</td>
                         <td class="text-center">{{$d->trip_destination}}</td>
                         <td class="text-center">{{ date('M d, Y', strtotime($d->date)) }}</td>
                         <td class="text-center">{{$d->booked_seats}}</td>
-                        <td class="tbl-btn animated slideInLeft">
+                        @if($admin->access == 0)
+                        <td class="text-center">
                           <a href="delayed/{{$d->id}}/edit">
                             <i class="fas fa-edit text-primary sp-i mr-2"></i>
                           </a>
@@ -251,6 +287,7 @@
                             <i class="fas fa-trash text-danger sp-i mr-2"></i>
                           </a>
                         </td>
+                        @endif
                       </tr>
                       <?php $i++ ?>
                     @endforeach

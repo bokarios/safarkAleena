@@ -17,10 +17,10 @@
                     <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
                   <div id="add-bus-feedback"></div>
                   <div class="form-group">
-                    <input type="text" class="form-control text-right" id="bus-name" placeholder="اسم الباص">
+                    <input type="text" class="form-control text-right" id="bus-name" placeholder="اسم الناقل">
                   </div>
                   <div class="form-group">
-                    <input type="text" class="form-control text-right" id="bus-type" placeholder="نوع الباص">
+                    <input type="text" class="form-control text-right" id="bus-type" placeholder="اسم الباص">
                   </div>
                   <div class="form-group">
                       <input type="number" class="form-control text-right" id="bus-seats" placeholder="عدد المقاعد">
@@ -65,7 +65,7 @@
                         <select class="form-control direction-rtl" id="trip-bus">
                           <option value="" disabled selected>الباصات</option>
                           @foreach($buses as $bus)
-                            <option value="{{$bus->id}}">{{ $bus->name }} ({{ $bus->type }})</option>
+                            <option value="{{$bus->id}}">{{ $bus->name }}-{{$bus->type}}</option>
                           @endforeach
                         </select>
                       </div>
@@ -138,6 +138,14 @@
                   </div>
                   <div class="form-group">
                     <input type="password" class="form-control text-right" id="admin-password2" placeholder="تأكيد كلمة المرور" min="8">
+                  </div>
+                  <div class="form-group">
+                    <select id="access" class="form-control direction-rtl">
+                      <option value="" disabled selected>مستوى الوصول</option>
+                      <option value="0">صلاحية كاملة</option>
+                      <option value="1">صلاحية المشاهدة و التعديل</option>
+                      <option value="3">صلاحية المشاهدة فقط</option>
+                    </select>
                   </div>
                   <div class="form-group">
                     <div class="row mt-5 direction-rtl">

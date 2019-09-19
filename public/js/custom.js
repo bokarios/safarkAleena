@@ -132,6 +132,7 @@ $(document).ready(function() {
 	$("#admin-add-btn").click(function() {
 		var name = $("#admin-name").val()
 		var email = $("#admin-email").val()
+		var access = $("#access").val()
 		var password = $("#admin-password").val()
 		var password2 = $("#admin-password2").val()
 		var token = $("input[name='_token']").val()
@@ -142,6 +143,7 @@ $(document).ready(function() {
 			data: {
 				name: name,
 				email: email,
+				access: access,
 				password: password,
 				password2: password2,
 				_token: token
@@ -150,6 +152,7 @@ $(document).ready(function() {
 				$("#add-admin-feedback").html(data)
 				$("#admin-name").val("")
 				$("#admin-email").val("")
+				$("#access").val("")
 				$("#admin-password").val("")
 				$("#admin-password2").val("")
 				$("#add-admin-feedback .alert").fadeOut(5000)
@@ -166,6 +169,7 @@ $(document).ready(function() {
 	$("#admin-reset-btn").click(function() {
 		$("#admin-name").val("")
 		$("#admin-email").val("")
+		$("#access").val("")
 		$("#admin-password").val("")
 		$("#admin-password2").val("")
 	})
@@ -173,6 +177,7 @@ $(document).ready(function() {
 	$("#add-admin-x").click(function() {
 		$("#admin-name").val("")
 		$("#admin-email").val("")
+		$("#access").val("")
 		$("#admin-password").val("")
 		$("#admin-password2").val("")
 	})

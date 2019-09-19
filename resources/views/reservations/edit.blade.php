@@ -69,6 +69,47 @@
 											@endif
                     </h4>
 									</div>
+									@if($resv->pay_type == 'نقدا')
+										<div class="form-group mx-md-5 mx-sm-3">
+											<label class="sr-only" for="pay-type">
+												pay type
+											</label>
+											<div class="input-group mb-2 mr-sm-2">
+												<div class="input-group-prepend" style="cursor: pointer">
+													<div class="input-group-text {{$errors->has('trip')?'border-danger':''}}" style="height: 46px;width:50px">
+														<i class="fas fa-credit-card text-muted"></i>
+													</div>
+												</div>
+												<select name="pay_type" id="pay-type" class="form-control direction-rtl">
+													<option value="نقدا" selected>نقدا</option>
+													<option value="بطاقة">بالبطاقة</option>
+												</select>
+											</div>
+											<h4 class="form-text text-right text-muted mr-3 simple-transition animated">
+												يمكنك تعديل طريقة الدفع
+											</h4>
+										</div>
+									@else
+										<div class="form-group mx-md-5 mx-sm-3">
+											<label class="sr-only" for="pay-type">
+												pay type
+											</label>
+											<div class="input-group mb-2 mr-sm-2">
+												<div class="input-group-prepend" style="cursor: pointer">
+													<div class="input-group-text {{$errors->has('trip')?'border-danger':''}}" style="height: 46px;width:50px">
+														<i class="fas fa-credit-card text-muted"></i>
+													</div>
+												</div>
+												<select name="pay_type" id="pay-type" class="form-control direction-rtl">
+													<option value="نقدا">نقدا</option>
+													<option value="بطاقة" selected>بالبطاقة</option>
+												</select>
+											</div>
+											<h4 class="form-text text-right text-muted mr-3 simple-transition animated">
+												يمكنك تعديل طريقة الدفع
+											</h4>
+										</div>
+									@endif
 									@if($resv->payed == 1)
 										<div class="form-group mx-md-5 mx-sm-3">
 											<label class="sr-only" for="payed">
