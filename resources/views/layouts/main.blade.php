@@ -24,7 +24,11 @@
       <!-- Argon JS -->
       <script src="{{asset('admins/js/argon.js')}}"></script>
   </head>
-
+  <style>
+    .table-responsive {
+      direction: rtl !important;
+    }
+  </style>
 <body>
   @include('inc.messages')
   @yield('content')

@@ -17,6 +17,8 @@ Route::get('/', 'PagesController@index');
 Route::post('/admins/add', 'AdminsController@store');
 /* Add Tripes Route */
 Route::post('/tripes/add', 'TripesController@store');
+/* Add Static Tripes Route */
+Route::post('/static/add', 'StaticTripesController@store');
 
 /* Edit Reservations Route */
 Route::get('/reservations/{id}/edit', 'ReservationsController@edit');

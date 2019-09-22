@@ -126,6 +126,50 @@ $(document).ready(function() {
 	//-----------------------------------------------------------------------------/
 
 	//--------------------------------------------------------------------
+	//													ADD STATIC TRIP                         //
+	//--------------------------------------------------------------------
+
+	$("#static-add-btn").click(function() {
+		var source = $("#static-source").val()
+		var destination = $("#static-destination").val()
+		var token = $("input[name='_token']").val()
+
+		$.ajax({
+			url: "static/add",
+			method: "POST",
+			data: {
+				source: source,
+				destination: destination,
+				_token: token
+			},
+			success: function(data) {
+				$("#add-static-feedback").html(data)
+				$("#static-source").val("")
+				$("#static-destination").val("")
+				$("#add-static-feedback .alert").fadeOut(5000)
+			},
+			error: function(data) {
+				$("#add-static-feedback").html(
+					'<p class="alert alert-warning text-center"> حصل خطأ ما </p>'
+				)
+				$("#add-static-feedback .alert").fadeOut(5000)
+			}
+		})
+	})
+
+	$("#static-reset-btn").click(function() {
+		$("#static-source").val("")
+		$("#static-destination").val("")
+	})
+
+	$("#add-static-x").click(function() {
+		$("#static-source").val("")
+		$("#static-destination").val("")
+	})
+
+	//-----------------------------------------------------------------------------/
+
+	//--------------------------------------------------------------------
 	//													ADD ADMIN                                 //
 	//--------------------------------------------------------------------
 

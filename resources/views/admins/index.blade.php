@@ -23,12 +23,12 @@
             </a>
             <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-right">
               <div class=" dropdown-header noti-title">
-                <h5 class="text-overflow m-0 text-center">مرحبا!</h5>
+                <h5 class="text-overflow m-0 text-center direction-rtl">مرحبا!</h5>
               </div>
-              <a href="#" class="dropdown-item">
+              {{-- <a href="#" class="dropdown-item">
                 <i class="ni ni-settings-gear-65"></i>
                 <span>الإعدادات</span>
-              </a>
+              </a> --}}
               <div class="dropdown-divider"></div>
               <a href="/logout" class="dropdown-item">
                 <i class="ni ni-user-run"></i>

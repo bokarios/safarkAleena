@@ -2,72 +2,62 @@
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-
+use App\StaticTrip;
 use Illuminate\Http\Request;
 
 class StaticTripesController extends Controller {
-
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
-		//
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		//
-	}
 
 	/**
 	 * Store a newly created resource in storage.
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function store(Request $request)
 	{
-		//
-	}
+		$output = '';
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		//
-	}
+		if($request->input('source') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل البداية اولا
+				</p>
+			';
+		}
+		if($request->input('destination') == '') {
+			$output .= '
+				<p class="alert alert-warning text-center">
+					ادخل الوجهة اولا
+				</p>
+			';
+		}
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
+		if( 
+			$request->input('source') != '' && 
+			$request->input('destination') != ''
+		) 
+		{
+			$trip = new StaticTrip();
+			$trip->source = $request->input('source');
+			$trip->destination = $request->input('destination');
+			$result = $trip->save();
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		//
+			if($result) {
+				$output .= '
+				<p class="alert alert-success text-center">
+					تمت اضافة الرحلة بنجاح
+				</p>
+			';
+			}
+			else {
+				$output .= '
+				<p class="alert alert-warning text-center">
+					حصل خطأ اثناء العملية
+				</p>
+			';
+			}
+		}
+
+		echo $output;
 	}
 
 	/**

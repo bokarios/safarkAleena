@@ -111,6 +111,49 @@
       </div>
     </div>
   </div>
+  <!-- add static tripes -->
+  <div class="modal fade" id="add-static" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title text-center ml-auto">اضافة رحلة افتراضية</h1>
+            <button type="button" class="close" data-dismiss="modal" aria-label="close" id="add-trip-x">
+              <i class="fa fa-times text-danger text-center"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+              <div class="row">
+                <div class="col-12">
+                  <form id="add-static-form">
+                    <h4 class="text-center text-muted mb-4">
+                      الرحلات الافتراضية هي التي تظهر للعميل عند القيام بحجز آجل
+                    </h4>
+                    <div id="add-static-feedback"></div>
+                    <div class="form-group">
+                        <input type="text" class="form-control text-right" id="static-source" placeholder="البداية">
+                      </div>
+                    <div class="form-group">
+                      <input type="text" class="form-control text-right" id="static-destination" placeholder="الوجهة">
+                    </div>
+                    <div class="form-group">
+                      <div class="row mt-5 direction-rtl">
+                        <div class="col">
+                          <button class="btn btn-primary btn-block" type="button" id="static-add-btn">اضافة</button>
+                        </div>
+                        <div class="col">
+                          <button class="btn btn-light btn-block" type="button" id="static-reset-btn">اعادة ضبط</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   <!-- add admin -->
   <div class="modal fade" id="add-admin" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">

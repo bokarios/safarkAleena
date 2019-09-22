@@ -19,11 +19,11 @@
           </div>
         </a>
         <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-right">
-          <a href="#" class="dropdown-item">
+          {{-- <a href="#" class="dropdown-item">
             <i class="ni ni-settings-gear-65"></i>
             <span>الإعدادات</span>
-          </a>
-          <div class="dropdown-divider"></div>
+          </a> --}}
+          {{-- <div class="dropdown-divider"></div> --}}
           <a href="/logout" class="dropdown-item">
             <i class="ni ni-user-run"></i>
             <span>الخروج</span>
@@ -37,9 +37,9 @@
       <div class="navbar-collapse-header d-md-none">
         <div class="row">
           <div class="col-6 collapse-brand">
-            <a href="#">
-              Safark <i class="fa fa-car"></i>
-            </a>
+              <a class="text-gradient-primary-dark" href="/panel">
+                <i class="fas fa-bus"></i> سفرك علينا
+              </a>
           </div>
           <div class="col-6 collapse-close">
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#sidenav-collapse-main" aria-controls="sidenav-main" aria-expanded="false" aria-label="Toggle sidenav">
@@ -65,6 +65,11 @@
             <i class="fa fa-plus-circle text-muted"></i> إضافة رحلة جديدة
           </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-static">
+              <i class="fa fa-plus-circle text-muted"></i> إضافة رحلة افتراضية
+            </a>
+          </li>
         @if($admin->access == 0)
         <li class="nav-item">
           <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-admin">

@@ -3,9 +3,11 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Reservation;
+use App\DelayedReservation;
 use App\Trip;
 use App\Bus;
 use App\User;
+use App\StaticTrip;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,32 +24,22 @@ class AdminsController extends Controller {
 		//Admin data
 		$data['admin'] = Auth::user();
 
-		//Reservations view query
-		$data['reservations'] = DB::table('reservations_view')->get();
+		//Reservations
+		$data['reservations'] = Reservation::all();
 		
-		//Trips view query
-		$data['trips'] = DB::table('trips_view')->where('seats', '>', 0)->get();
+		//Trips
+		$data['trips'] = Trip::where('avilable_seats', '>', 0)->get();
 
-		//Static trips view query
-		$data['static_trips'] = DB::table('static_trips')->get();
+		//Static
+		$data['static_trips'] = StaticTrip::all();
 
-		// Delayed Reservations view query
-		$data['delayed'] = DB::table('delayed_reservations_view')->get();
+		// Delayed Reservations
+		$data['delayed'] = DelayedReservation::all();
 
 		//Buses
 		$data['buses'] = Bus::orderBy('name', 'asc')->get();
 		
 		return view('admins.index')->with($data);
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		//
 	}
 
 	/**
@@ -146,66 +138,20 @@ class AdminsController extends Controller {
 	}
 
 	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		//
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		//
-	}
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($id)
-	{
-		//
-	}
-
-	/**
 	 * Refresh the reservations table data.
 	 * 
 	 * @return Response
 	 */
 	public function reservationsRefresh(Request $request)
 	{
-		$reservations = DB::table('reservations_view')->get();
+		$reservations = Reservation::all();
 
 		$data = '';
-		$i = 1;
 
 		$data .= '
 			<table class="table table-striped table-bordered table-hover direction-rtl">
 				<thead class="thead-light">
 					<tr>
-						<th class="text-center">#</th>
 						<th class="text-center">الإسم</th>
 						<th class="text-center">الهاتف</th>
 						<th class="text-center">البداية</th>
@@ -224,16 +170,15 @@ class AdminsController extends Controller {
 		foreach($reservations as $resv)
 		{
 			$data .= '<tr>';
-			$data .= '<td class="text-center">'.$i.'</td>';
-			$data .= '<td class="text-center">'.$resv->client_name.'</td>';
-			$data .= '<td class="text-center">'.$resv->client_mobile.'</td>';
-			$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
-			$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
-			$data .= '<td class="text-center">'.$resv->bus_name.'</td>';
-			$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
-			$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+			$data .= '<td class="text-center">'.$resv->client->name.'</td>';
+			$data .= '<td class="text-center">'.$resv->client->mobile.'</td>';
+			$data .= '<td class="text-center">'.$resv->trip->source.'</td>';
+			$data .= '<td class="text-center">'.$resv->trip->destination.'</td>';
+			$data .= '<td class="text-center">'.$resv->trip->bus->name.'</td>';
+			$data .= '<td class="text-center">'.$resv->trip->bus->type.'</td>';
+			$data .= '<td class="text-center">'.$resv->booked_seats_num.'</td>';
 			$data .= '<td class="text-center">'.$resv->pay_type.'</td>';
-			$data .= '<td class="text-center">'.$resv->account_num.'</td>';
+			$data .= '<td class="text-center">'.$resv->client->account_num.'</td>';
 			$data .= '<td class="text-center">';
 			$data .=	$resv->payed == 1? '<i class="fas fa-check-circle text-success"></i>':'<i class="fas fa-times-circle text-danger"></i>';
 			$data .= '</td>';
@@ -247,7 +192,6 @@ class AdminsController extends Controller {
 				</a> 
 			</td>': '';
 		$data .= '</tr>';
-		$i++;
 		}
 		$data .= '
 				</tbody>
@@ -265,27 +209,31 @@ class AdminsController extends Controller {
 	public function reservationsSearch(Request $request)
 	{
 		$search = $request->input('query');
-		$reservations = DB::table('reservations_view')
-			->where('client_name', 'LIKE', '%'.$search.'%')
-			->orWhere('client_mobile', 'LIKE', '%'.$search.'%')
-			->orWhere('trip_source', 'LIKE', '%'.$search.'%')
-			->orWhere('trip_destination', 'LIKE', '%'.$search.'%')
-			->orWhere('booked_seats', 'LIKE', '%'.$search.'%')
-			->orWhere('bus_type', 'LIKE', '%'.$search.'%')
-			->orWhere('bus_name', 'LIKE', '%'.$search.'%')
+		$result = Reservation::where('booked_seats_num', 'LIKE', '%'.$search.'%')
 			->orWhere('pay_type', 'LIKE', '%'.$search.'%')
-			->orWhere('account_num', 'LIKE', '%'.$search.'%')
-			->get();
-		$data = '';
-		$i = 1;
+			->orWhereHas('client', function($query) use ($search){
+				return $query->where('name', 'LIKE', '%'.$search.'%')
+					->orWhere('account_num', 'LIKE', '%'.$search.'%')
+					->orWhere('mobile', 'LIKE', '%'.$search.'%');
+			})
+			->orWhereHas('trip', function($query) use ($search){
+				return $query->where('source', 'LIKE', '%'.$search.'%')
+					->orWhere('destination', 'LIKE', '%'.$search.'%')
+					->orWhereHas('bus', function($query) use ($search){
+						return $query->where('type', 'LIKE', '%'.$search.'%')
+							->orWhere('name', 'LIKE', '%'.$search.'%');
+										});
+			})
+		->get();
 
-		if(!empty($reservations))
+		$data = '';
+
+		if(count($result) != 0)
 		{
 			$data .= '
 			<table class="table table-striped table-bordered table-hover direction-rtl">
 				<thead class="thead-light">
 					<tr>
-						<th class="text-center">#</th>
 						<th class="text-center">الإسم</th>
 						<th class="text-center">الهاتف</th>
 						<th class="text-center">البداية</th>
@@ -301,19 +249,18 @@ class AdminsController extends Controller {
 				</thead>
 				<tbody>
 			';
-			foreach($reservations as $resv)
+			foreach($result as $resv)
 			{
 				$data .= '<tr>';
-				$data .= '<td class="text-center">'.$i.'</td>';
-				$data .= '<td class="text-center">'.$resv->client_name.'</td>';
-				$data .= '<td class="text-center">'.$resv->client_mobile.'</td>';
-				$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
-				$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
-				$data .= '<td class="text-center">'.$resv->bus_name.'</td>';
-				$data .= '<td class="text-center">'.$resv->bus_type.'</td>';
-				$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+				$data .= '<td class="text-center">'.$resv->client->name.'</td>';
+				$data .= '<td class="text-center">'.$resv->client->mobile.'</td>';
+				$data .= '<td class="text-center">'.$resv->trip->source.'</td>';
+				$data .= '<td class="text-center">'.$resv->trip->destination.'</td>';
+				$data .= '<td class="text-center">'.$resv->trip->bus->name.'</td>';
+				$data .= '<td class="text-center">'.$resv->trip->bus->type.'</td>';
+				$data .= '<td class="text-center">'.$resv->booked_seats_num.'</td>';
 				$data .= '<td class="text-center">'.$resv->pay_type.'</td>';
-				$data .= '<td class="text-center">'.$resv->account_num.'</td>';
+				$data .= '<td class="text-center">'.$resv->client->account_num.'</td>';
 				$data .= '<td class="text-center">';
 				$data .=	$resv->payed == 1? '<i class="fas fa-check-circle text-success"></i>':'<i class="fas fa-times-circle text-danger"></i>';
 				$data .= '</td>';
@@ -327,7 +274,6 @@ class AdminsController extends Controller {
 					</a> 
 				</td>': '';
 			$data .= '</tr>';
-			$i++;
 			}
 			$data .= '
 					</tbody>
@@ -356,36 +302,14 @@ class AdminsController extends Controller {
 	 */
 	public function delayedRefresh(Request $request)
 	{
-		$query = "
-			SELECT
-				rsv.id AS id,
-				cl.name AS client_name,
-				cl.mobile AS client_mobile,
-				cl.location AS client_location,
-				trp.source AS trip_source,
-				trp.destination AS trip_destination,
-				rsv.booked_seats_num AS booked_seats,
-				rsv.reserve_date AS date,
-				rsv.created_at AS created_at,
-				rsv.updated_at AS updated_at
-			FROM
-				delayed_reservations AS rsv,
-				static_trips AS trp,
-				clients AS cl
-			WHERE
-				rsv.client_id = cl.id AND
-				rsv.static_trip_id = trp.id
-		";
-		$reservations = DB::select($query);
+		$reservations = DelayedReservation::all();
 
 		$data = '';
-		$i = 1;
 
 		$data .= '
 			<table class="table table-striped table-bordered table-hover direction-rtl">
 				<thead class="thead-light">
 					<tr>
-						<th class="text-center">#</th>
 						<th class="text-center">الإسم</th>
 						<th class="text-center">الهاتف</th>
 						<th class="text-center">البداية</th>
@@ -399,13 +323,12 @@ class AdminsController extends Controller {
 		foreach($reservations as $resv)
 		{
 			$data .= '<tr>';
-			$data .= '<td class="text-center">'.$i.'</td>';
-			$data .= '<td class="text-center">'.$resv->client_name.'</td>';
-			$data .= '<td class="text-center">'.$resv->client_mobile.'</td>';
-			$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
-			$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
+			$data .= '<td class="text-center">'.$resv->client->name.'</td>';
+			$data .= '<td class="text-center">'.$resv->client->mobile.'</td>';
+			$data .= '<td class="text-center">'.$resv->staticTrip->source.'</td>';
+			$data .= '<td class="text-center">'.$resv->staticTrip->destination.'</td>';
 			$data .= '<td class="text-center">'.  date("M d, Y",strtotime($resv->created_at)) .'</td>';
-			$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+			$data .= '<td class="text-center">'.$resv->booked_seats_num.'</td>';
 			$data .= Auth::user()->access == 0? '<td class="text-center">
 				<a href="reservations/'. $resv->id .'/edit">
 					<i class="fas fa-edit text-primary mr-2"></i>
@@ -415,7 +338,6 @@ class AdminsController extends Controller {
 				</a> 
 			</td>': '';
 		$data .= '</tr>';
-		$i++;
 		}
 		$data .= '
 				</tbody>
@@ -433,25 +355,25 @@ class AdminsController extends Controller {
 	public function delayedSearch(Request $request)
 	{
 		$search = $request->input('query');
+		$result = DelayedReservation::where('booked_seats_num', 'LIKE', '%'.$search.'%')
+			->orWhereHas('client', function($query) use ($search){
+				return $query->where('name', 'LIKE', '%'.$search.'%')
+					->orWhere('mobile', 'LIKE', '%'.$search.'%');
+			})
+			->orWhereHas('staticTrip', function($query) use ($search){
+				return $query->where('source', 'LIKE', '%'.$search.'%')
+					->orWhere('destination', 'LIKE', '%'.$search.'%');
+			})
+		->get();
 
-		$reservations = DB::table('delayed_reservations_view')
-			->where('client_name', 'LIKE', '%'.$search.'%')
-			->orWhere('client_mobile', 'LIKE', '%'.$search.'%')
-			->orWhere('trip_source', 'LIKE', '%'.$search.'%')
-			->orWhere('trip_destination', 'LIKE', '%'.$search.'%')
-			->orWhere('booked_seats', 'LIKE', '%'.$search.'%')
-			->get()
-			;
 		$data = '';
-		$i = 1;
 
-		if(!empty($reservations))
+		if(count($result) != 0)
 		{
 			$data .= '
 				<table class="table table-striped table-bordered table-hover direction-rtl">
 					<thead class="thead-light">
 						<tr>
-							<th class="text-center">#</th>
 							<th class="text-center">الإسم</th>
 							<th class="text-center">الهاتف</th>
 							<th class="text-center">البداية</th>
@@ -462,16 +384,15 @@ class AdminsController extends Controller {
 					</thead>
 					<tbody>
 			';
-			foreach($reservations as $resv)
+			foreach($result as $resv)
 			{
 				$data .= '<tr>';
-				$data .= '<td class="text-center">'.$i.'</td>';
-				$data .= '<td class="text-center">'.$resv->client_name.'</td>';
-				$data .= '<td class="text-center">'.$resv->client_mobile.'</td>';
-				$data .= '<td class="text-center">'.$resv->trip_source.'</td>';
-				$data .= '<td class="text-center">'.$resv->trip_destination.'</td>';
+				$data .= '<td class="text-center">'.$resv->client->name.'</td>';
+				$data .= '<td class="text-center">'.$resv->client->mobile.'</td>';
+				$data .= '<td class="text-center">'.$resv->staticTrip->source.'</td>';
+				$data .= '<td class="text-center">'.$resv->staticTrip->destination.'</td>';
 				$data .= '<td class="text-center">'.  date("M d, Y",strtotime($resv->created_at)) .'</td>';
-				$data .= '<td class="text-center">'.$resv->booked_seats.'</td>';
+				$data .= '<td class="text-center">'.$resv->booked_seats_num.'</td>';
 				$data .= Auth::user()->access == 0? '<td class="text-center">
 					<a href="reservations/'. $resv->id .'/edit">
 						<i class="fas fa-edit text-primary mr-2"></i>
@@ -481,7 +402,6 @@ class AdminsController extends Controller {
 					</a> 
 				</td>': '';
 				$data .= '</tr>';
-				$i++;
 			}
 			$data .= '
 					</tbody>
@@ -510,16 +430,14 @@ class AdminsController extends Controller {
 	 */
 	public function tripesRefresh(Request $request)
 	{
-		$trips = DB::table('trips_view')->get();
+		$trips = Trip::all();
 
 		$data = '';
-		$i = 1;
 
 		$data .= '
 		<table class="table table-striped table-bordered hover direction-rtl">
 		<thead>
 			<tr>
-				<th class="text-center">#</th>
 				<th class="text-center">البداية</th>
 				<th class="text-center">الوجهة</th>
 				<th class="text-center">الحضور</th>
@@ -535,14 +453,13 @@ class AdminsController extends Controller {
 		foreach($trips as $trip)
 		{
 			$data .= '<tr>';
-			$data .= '<td class="text-center">'.$i.'</td>';
 			$data .= '<td class="text-center">'.$trip->source.'</td>';
 			$data .= '<td class="text-center">'.$trip->destination.'</td>';
-			$data .= '<td class="text-center">'.  date("h:ia",strtotime($trip->attend)) .'</td>';
-			$data .= '<td class="text-center">'.  date("h:ia",strtotime($trip->start)) .'</td>';
-			$data .= '<td class="text-center">'.$trip->bus_name.'</td>';
-			$data .= '<td class="text-center">'.$trip->bus_type.'</td>';
-			$data .= '<td class="text-center">'.$trip->seats.'</td>';
+			$data .= '<td class="text-center">'.  date("h:ia",strtotime($trip->attend_time)) .'</td>';
+			$data .= '<td class="text-center">'.  date("h:ia",strtotime($trip->trip_start_time)) .'</td>';
+			$data .= '<td class="text-center">'.$trip->bus->name.'</td>';
+			$data .= '<td class="text-center">'.$trip->bus->type.'</td>';
+			$data .= '<td class="text-center">'.$trip->avilable_seats.'</td>';
 			$data .= '<td class="text-center">'.$trip->price.'</td>';
 			$data .= Auth::user()->access == 0? '<td class="text-center">
 				<a href="tripes/'. $trip->id .'/edit">
@@ -553,7 +470,6 @@ class AdminsController extends Controller {
 				</a> 
 			</td>': '';
 		$data .= '</tr>';
-		$i++;
 		}
 		$data .= '
 				</tbody>
@@ -571,24 +487,24 @@ class AdminsController extends Controller {
 	public function tripesSearch(Request $request)
 	{
 		$search = $request->input('query');
-		$trips = DB::table('trips_view')
-			->where('price', 'LIKE', '%'.$search.'%')
-			->orWhere('source', 'LIKE', '%'.$search.'%')
+		$result = Trip::where('source', 'LIKE', '%'.$search.'%')
 			->orWhere('destination', 'LIKE', '%'.$search.'%')
-			->orWhere('seats', 'LIKE', '%'.$search.'%')
-			->orWhere('bus_type', 'LIKE', '%'.$search.'%')
-			->orWhere('bus_name', 'LIKE', '%'.$search.'%')
-			->get();
-		$data = '';
-		$i = 1;
+			->orWhere('avilable_seats', 'LIKE', '%'.$search.'%')
+			->orWhere('price', 'LIKE', '%'.$search.'%')
+			->orWhereHas('bus', function($query) use ($search){
+				return $query->where('type', 'LIKE', '%'.$search.'%')
+				->orWhere('name', 'LIKE', '%'.$search.'%');
+			})
+		->get();
 
-		if(!empty($trips))
+		$data = '';
+
+		if(count($result) != 0)
 		{
 			$data .= '
 				<table class="table table-striped table-bordered hover direction-rtl">
 					<thead>
 						<tr>
-							<th class="text-center">#</th>
 							<th class="text-center">البداية</th>
 							<th class="text-center">الوجهة</th>
 							<th class="text-center">الحضور</th>
@@ -601,17 +517,16 @@ class AdminsController extends Controller {
 					</thead>
 					<tbody>
 			';
-			foreach($trips as $trip)
+			foreach($result as $trip)
 			{
 				$data .= '<tr>';
-				$data .= '<td class="text-center">'.$i.'</td>';
 				$data .= '<td class="text-center">'.$trip->source.'</td>';
 				$data .= '<td class="text-center">'.$trip->destination.'</td>';
 				$data .= '<td class="text-center">'.date("h:ia",strtotime($trip->attend)).'</td>';
 				$data .= '<td class="text-center">'.date("h:ia",strtotime($trip->start)).'</td>';
-				$data .= '<td class="text-center">'.$trip->bus_name.'</td>';
-				$data .= '<td class="text-center">'.$trip->bus_type.'</td>';
-				$data .= '<td class="text-center">'.$trip->seats.'</td>';
+				$data .= '<td class="text-center">'.$trip->bus->name.'</td>';
+				$data .= '<td class="text-center">'.$trip->bus->type.'</td>';
+				$data .= '<td class="text-center">'.$trip->avilable_seats.'</td>';
 				$data .= '<td class="text-center">'.$trip->price.'</td>';
 				$data .= Auth::user()->access == 0?'<td class="text-center">
 					<a href="tripes/'. $trip->id .'/edit">
@@ -622,7 +537,6 @@ class AdminsController extends Controller {
 					</a> 
 				</td>':'';
 			$data .= '</tr>';
-			$i++;
 			}
 			$data .= '
 					</tbody>
@@ -659,6 +573,60 @@ class AdminsController extends Controller {
 		}
 		else {
 			return back()->with('warning', 'حصل خطأ اثناء العملية')->withInput(['tab'=>'nav-trip']);
+		}
+	}
+
+	/**
+	 * Truncate the reservations table data.
+	 * 
+	 * @return Response
+	 */
+	public function reservationsTruncate()
+	{
+		$result = DB::table('reservations')->delete();
+
+		if($result)
+		{
+			return back()->with('success', 'تم مسح جميع معلومات الحجوزات')->withInput(['tab'=>'nav-reservation']);
+		}
+		else {
+			return back()->with('warning', 'حصل خطأ اثناء العملية')->withInput(['tab'=>'nav-reservation']);
+		}
+	}
+
+	/**
+	 * Truncate the delayed reservations table data.
+	 * 
+	 * @return Response
+	 */
+	public function delayedTruncate()
+	{
+		$result = DB::table('delayed_reservations')->delete();
+
+		if($result)
+		{
+			return back()->with('success', 'تم مسح جميع معلومات الحجوزات المؤجلة')->withInput(['tab'=>'nav-delayed']);
+		}
+		else {
+			return back()->with('warning', 'حصل خطأ اثناء العملية')->withInput(['tab'=>'nav-delayed']);
+		}
+	}
+
+	/**
+	 * Truncate the static trips table data.
+	 * 
+	 * @return Response
+	 */
+	public function staticTripesTruncate()
+	{
+		$result = DB::table('static_trips')->delete();
+
+		if($result)
+		{
+			return back()->with('success', 'تم مسح جميع معلومات الرحلات الافتراضية')->withInput(['tab'=>'nav-static']);
+		}
+		else {
+			return back()->with('warning', 'حصل خطأ اثناء العملية')->withInput(['tab'=>'nav-static']);
 		}
 	}
 

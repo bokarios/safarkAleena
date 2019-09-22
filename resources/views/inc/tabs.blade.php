@@ -46,7 +46,6 @@
                 <table class="table table-striped table-bordered table-hover direction-rtl">
                   <thead class="thead-light">
                     <tr>
-                      <th class="text-center">#</th>
                       <th class="text-center">الإسم</th>
                       <th class="text-center">الهاتف</th>
                       <th class="text-center">البداية</th>
@@ -61,19 +60,17 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <?php $i = 1 ?>
                     @foreach($reservations as $resv)
                       <tr>
-                        <td class="text-center">{{$i}}</td>
-                        <td class="text-center">{{$resv->client_name}}</td>
-                        <td class="text-center">{{$resv->client_mobile}}</td>
-                        <td class="text-center">{{$resv->trip_source}}</td>
-                        <td class="text-center">{{$resv->trip_destination}}</td>
-                        <td class="text-center">{{$resv->bus_name}}</td>
-                        <td class="text-center">{{$resv->bus_type}}</td>
-                        <td class="text-center">{{$resv->booked_seats}}</td>
+                        <td class="text-center">{{$resv->client->name}}</td>
+                        <td class="text-center">{{$resv->client->mobile}}</td>
+                        <td class="text-center">{{$resv->trip->source}}</td>
+                        <td class="text-center">{{$resv->trip->destination}}</td>
+                        <td class="text-center">{{$resv->trip->bus->name}}</td>
+                        <td class="text-center">{{$resv->trip->bus->type}}</td>
+                        <td class="text-center">{{$resv->booked_seats_num}}</td>
                         <td class="text-center">{{$resv->pay_type}}</td>
-                        <td class="text-center">{{$resv->account_num}}</td>
+                        <td class="text-center">{{$resv->client->account_num}}</td>
                         <td class="text-center">
                           @if($resv->payed == 1)
                             <i class="fas fa-check-circle text-success"></i>
@@ -93,7 +90,6 @@
                         </td>
                         @endif
                       </tr>
-                      <?php $i++ ?>
                     @endforeach
                   </tbody>
                 </table>
@@ -158,7 +154,6 @@
                 <table class="table table-striped table-bordered hover direction-rtl">
                   <thead>
                     <tr>
-                      <th class="text-center">#</th>
                       <th class="text-center">البداية</th>
                       <th class="text-center">الوجهة</th>
                       <th class="text-center">الحضور</th>
@@ -170,17 +165,15 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <?php $i = 1 ?>
                     @foreach($trips as $trip)
                       <tr>
-                        <td class="text-center">{{$i}}</td>
                         <td class="text-center">{{$trip->source}}</td>
                         <td class="text-center">{{$trip->destination}}</td>
-                        <td class="text-center">{{ date('h:ia', strtotime($trip->attend)) }}</td>
-                        <td class="text-center">{{ date('h:ia', strtotime($trip->start)) }}</td>
-                        <td class="text-center">{{$trip->bus_name}}</td>
-                        <td class="text-center">{{$trip->bus_type}}</td>
-                        <td class="text-center">{{$trip->seats}}</td>
+                        <td class="text-center">{{ date('h:ia', strtotime($trip->attend_time)) }}</td>
+                        <td class="text-center">{{ date('h:ia', strtotime($trip->trip_start_time)) }}</td>
+                        <td class="text-center">{{$trip->bus->name}}</td>
+                        <td class="text-center">{{$trip->bus->type}}</td>
+                        <td class="text-center">{{$trip->avilable_seats}}</td>
                         <td class="text-center">{{$trip->price}}</td>
                         @if($admin->access == 0)
                         <td class="text-center">
@@ -193,7 +186,6 @@
                         </td>
                         @endif
                       </tr>
-                      <?php $i++ ?>
                     @endforeach
                   </tbody>
                 </table>
@@ -258,7 +250,6 @@
                 <table class="table table-striped table-bordered hover direction-rtl">
                   <thead>
                     <tr>
-                      <th class="text-center">#</th>
                       <th class="text-center">الإسم</th>
                       <th class="text-center">الهاتف</th>
                       <th class="text-center">البداية</th>
@@ -268,16 +259,14 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <?php $i = 1 ?>
                     @foreach($delayed as $d)
                       <tr>
-                        <td class="text-center">{{$i}}</td>
-                        <td class="text-center">{{$d->client_name}}</td>
-                        <td class="text-center">{{$d->client_mobile}}</td>
-                        <td class="text-center">{{$d->trip_source}}</td>
-                        <td class="text-center">{{$d->trip_destination}}</td>
+                        <td class="text-center">{{$d->client->name}}</td>
+                        <td class="text-center">{{$d->client->mobile}}</td>
+                        <td class="text-center">{{$d->staticTrip->source}}</td>
+                        <td class="text-center">{{$d->staticTrip->destination}}</td>
                         <td class="text-center">{{ date('M d, Y', strtotime($d->date)) }}</td>
-                        <td class="text-center">{{$d->booked_seats}}</td>
+                        <td class="text-center">{{$d->booked_seats_num}}</td>
                         @if($admin->access == 0)
                         <td class="text-center">
                           <a href="delayed/{{$d->id}}/edit">
@@ -289,7 +278,6 @@
                         </td>
                         @endif
                       </tr>
-                      <?php $i++ ?>
                     @endforeach
                   </tbody>
                 </table>
