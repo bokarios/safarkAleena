@@ -8,6 +8,7 @@ use App\Trip;
 use App\Bus;
 use App\User;
 use App\StaticTrip;
+use App\Comment;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,6 +36,9 @@ class AdminsController extends Controller {
 
 		// Delayed Reservations
 		$data['delayed'] = DelayedReservation::all();
+
+		//Comments
+		$data['comments'] = Comment::all();
 
 		//Buses
 		$data['buses'] = Bus::orderBy('name', 'asc')->get();

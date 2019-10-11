@@ -65,11 +65,6 @@
             <i class="fa fa-plus-circle text-muted"></i> إضافة رحلة جديدة
           </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-static">
-              <i class="fa fa-plus-circle text-muted"></i> إضافة رحلة افتراضية
-            </a>
-          </li>
         @if($admin->access == 0)
         <li class="nav-item">
           <a class="nav-link btn btn-outline-secondary btn-block" href="#" data-toggle="modal" data-target="#add-admin">
@@ -95,6 +90,11 @@
         <li class="nav-item">
           <a class="nav-item nav-link btn btn-outline-secondary btn-block" id="nav-trip-tab" data-toggle="tab" href="#nav-trip" role="tab" aria-controls="nav-trip" aria-selected="true">
             <i class="fa fa-table text-muted"></i> قائمة الرحلات
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-item nav-link btn btn-outline-secondary btn-block" id="nav-comm-tab" data-toggle="tab" href="#nav-comm" role="tab" aria-controls="nav-comm" aria-selected="true">
+            <i class="fa fa-comment text-muted"></i> قائمة التعليقات
           </a>
         </li>
       </ul>

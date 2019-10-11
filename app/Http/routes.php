@@ -58,6 +58,12 @@ Route::post('/tripes/search', 'AdminsController@tripesSearch');
 /* Truncate Tripes Route */
 Route::get('/tripes/truncate', 'AdminsController@tripesTruncate');
 
+/* Truncate Comments Route */
+Route::get('/comments/truncate', 'CommentsController@commentsTruncate');
+
+/* Delete Comment Route */
+Route::get('/comments/{id}/delete', 'CommentsController@destroy');
+
 /* Buses Resources */
 Route::resource('buses', 'BusesController');
 /* Tripes Resources */

@@ -17,6 +17,7 @@ class CreateStaticTripsTable extends Migration {
 			$table->increments('id');
 			$table->string('source');
 			$table->string('destination');
+			$table->integer('client_id');
 			$table->timestamps();
 		});
 	}

@@ -13,7 +13,7 @@
             <hr class="bg-gradient-primary w-50 my-3" style="height:2px">
           </div>
           <div class="card-body">
-            @if($reservations)
+            @if(count($reservations) > 0)
               @if($admin->access == 0 || $admin->access == 1)
               <div class="row mb-5 text-right">
                 <div class="col-12">
@@ -121,7 +121,7 @@
             <hr class="bg-gradient-primary w-50 my-3" style="height:2px">
           </div>
           <div class="card-body">
-              @if($trips)
+              @if(count($trips) > 0)
               @if($admin->access == 0 || $admin->access == 1)
               <div class="row mb-5 text-right">
                 <div class="col-12">
@@ -217,7 +217,7 @@
             <hr class="bg-gradient-primary w-50 my-3" style="height:2px">
           </div>
           <div class="card-body">
-            @if($delayed)
+            @if(count($delayed) > 0)
               @if($admin->access == 0 || $admin->access == 1)
               <div class="row mb-5 text-right">
                 <div class="col-12">
@@ -287,6 +287,55 @@
               <div class="col-12 text-center">
                 <i class="fa fa-times-circle text-danger fa-2x text-center"></i>
                 <h2 class="text-center text-danger">لا يوجد بيانات حاليا</h2>
+              </div>
+            </div>
+            @endif
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane animated fadeInDown" id="nav-comm" role="tabpanel" aria-labelledby="nav-comm-tab">
+    <!-- comments list -->
+    <div class="row mt-5" id="subjects-list">
+      <div class="col-xl-12 mx-auto mb-5 mb-xl-0">
+        <div class="card shadow-custome">
+          <div class="card-header border-0">
+            <div class="row align-items-center">
+              <div class="col text-center">
+                <h1 class="mb-0">المقترحات و الشكاوي</h1>
+              </div>
+            </div>
+            <hr class="bg-gradient-primary w-50 my-3" style="height:2px">
+          </div>
+          <div class="card-body">
+            @if(count($comments) > 0)
+              @if($admin->access == 0 || $admin->access == 1)
+              <div class="row mb-5 text-right">
+                <div class="col-12">
+                  <a href="comments/truncate" class="btn btn-warning">مسح جميع التعليقات والشكاوي</a>
+                </div>
+              </div>
+              @endif
+              <div class="row">
+                <div class="col-md-12">
+                  @foreach($comments as $comment)
+                    <div class="card px-2 mb-5">
+                      <div class="card-body px-3">
+                        <strong class="text-gradient-primary-dark">{{date('M d, Y (h:ia)', strtotime($comment->created_at))}}</strong>
+                        <hr class="mt-1 mb-4">
+                        <p class="text-right" style="font-size:16pt">{{$comment->comment}}</p>
+                        <a href="/comments/{{$comment->id}}/delete"><i class="fa fa-trash text-danger"></i></a>
+                      </div>
+                    </div>
+                  @endforeach
+                </div>
+              </div>
+            @else
+            <div class="row">
+              <div class="col-12 text-center">
+                <i class="fa fa-times-circle text-danger fa-2x text-center"></i>
+                <h2 class="text-center text-danger">لا يوجد شكاوي أو مقترحات</h2>
               </div>
             </div>
             @endif
